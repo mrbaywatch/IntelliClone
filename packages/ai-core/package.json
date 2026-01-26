@@ -1,0 +1,52 @@
+{
+  "name": "@kit/ai-core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "LLM routing and AI operations for Intelli products",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./providers": {
+      "import": "./dist/providers/index.js",
+      "types": "./dist/providers/index.d.ts"
+    },
+    "./prompts": {
+      "import": "./dist/prompts/index.js",
+      "types": "./dist/prompts/index.d.ts"
+    },
+    "./streaming": {
+      "import": "./dist/streaming/index.js",
+      "types": "./dist/streaming/index.d.ts"
+    },
+    "./tokens": {
+      "import": "./dist/tokens/index.js",
+      "types": "./dist/tokens/index.d.ts"
+    },
+    "./rate-limiting": {
+      "import": "./dist/rate-limiting/index.js",
+      "types": "./dist/rate-limiting/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^0.0.56",
+    "@ai-sdk/openai": "^2.0.88",
+    "ai": "5.0.76",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

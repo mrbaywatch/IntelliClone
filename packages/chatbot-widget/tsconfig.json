@@ -1,0 +1,10 @@
+{
+  "extends": "@kit/tsconfig/base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
+    "outDir": "./dist",
+    "jsx": "react-jsx"
+  },
+  "include": ["src", "./global.d.ts"],
+  "exclude": ["node_modules", "dist"]
+}

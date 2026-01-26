@@ -1,0 +1,2 @@
+export { chunkText, normalizeWhitespace, extractSentences, estimateTokenCount, truncateToTokens, jaccardSimilarity, removeStopwords, sanitizeText, detectLanguage, DEFAULT_CHUNKING_OPTIONS, type ChunkingOptions, type ChunkResult, } from './text.js';
+//# sourceMappingURL=index.d.ts.map
