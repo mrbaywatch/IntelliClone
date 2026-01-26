@@ -451,19 +451,89 @@ function UploadAudio({
 }) {
   const [audioUrl, setAudioUrl] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadMode, setUploadMode] = useState<'file' | 'url'>('file');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleUrlSubmit = async () => {
     if (!audioUrl) return;
     setIsUploading(true);
+    setUploadError(null);
     try {
       await startTranscription(meetingId, audioUrl);
       onUploadComplete();
     } catch (error) {
       console.error('Failed to start transcription:', error);
+      setUploadError('Kunne ikke starte transkribering. Sjekk at URL-en er gyldig.');
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (500MB max)
+    if (file.size > 500 * 1024 * 1024) {
+      setUploadError('Filen er for stor. Maksimal størrelse er 500MB.');
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = [
+      'audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/webm', 
+      'audio/ogg', 'audio/m4a', 'audio/x-m4a',
+      'video/mp4', 'video/webm', 'video/quicktime'
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      setUploadError('Ugyldig filtype. Tillatte formater: MP3, WAV, WEBM, OGG, M4A, MP4, MOV');
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadError(null);
+    setUploadProgress('Laster opp fil...');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('transcribe', 'true');
+
+      const response = await fetch(`/api/meetings/${meetingId}/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Upload failed');
+      }
+
+      setUploadProgress('Behandler opptak...');
+      onUploadComplete();
+    } catch (error) {
+      console.error('Failed to upload file:', error);
+      setUploadError(
+        error instanceof Error 
+          ? error.message 
+          : 'Kunne ikke laste opp filen. Prøv igjen.'
+      );
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(null);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   return (
@@ -474,27 +544,103 @@ function UploadAudio({
           Last opp lydopptak
         </CardTitle>
         <CardDescription>
-          Legg til en URL til lydopptaket for å starte transkriberingen.
+          Last opp en fil eller legg til en URL for å starte transkriberingen.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Mode Toggle */}
         <div className="flex gap-2">
-          <Input
-            placeholder="https://example.com/meeting-recording.mp3"
-            value={audioUrl}
-            onChange={(e) => setAudioUrl(e.target.value)}
-          />
-          <Button onClick={handleUrlSubmit} disabled={!audioUrl || isUploading}>
-            {isUploading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              'Start'
-            )}
+          <Button 
+            variant={uploadMode === 'file' ? 'default' : 'outline'} 
+            size="sm"
+            onClick={() => setUploadMode('file')}
+            disabled={isUploading}
+          >
+            Last opp fil
+          </Button>
+          <Button 
+            variant={uploadMode === 'url' ? 'default' : 'outline'} 
+            size="sm"
+            onClick={() => setUploadMode('url')}
+            disabled={isUploading}
+          >
+            Fra URL
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground">
-          Støttede formater: MP3, WAV, M4A, WEBM, OGG
-        </p>
+
+        {/* File Upload */}
+        {uploadMode === 'file' && (
+          <div className="space-y-3">
+            <div 
+              className={`
+                border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+                transition-colors hover:border-primary/50
+                ${isUploading ? 'pointer-events-none opacity-50' : ''}
+              `}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="audio/*,video/mp4,video/webm,video/quicktime"
+                onChange={handleFileUpload}
+                className="hidden"
+                disabled={isUploading}
+              />
+              {isUploading ? (
+                <div className="flex flex-col items-center gap-2">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <p className="text-sm font-medium">{uploadProgress}</p>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-2">
+                  <Upload className="h-8 w-8 text-muted-foreground" />
+                  <p className="text-sm font-medium">
+                    Klikk for å velge fil eller dra og slipp
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    MP3, WAV, M4A, WEBM, OGG, MP4, MOV (maks 500MB)
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* URL Input */}
+        {uploadMode === 'url' && (
+          <div className="space-y-3">
+            <div className="flex gap-2">
+              <Input
+                placeholder="https://example.com/meeting-recording.mp3"
+                value={audioUrl}
+                onChange={(e) => setAudioUrl(e.target.value)}
+                disabled={isUploading}
+              />
+              <Button 
+                onClick={handleUrlSubmit} 
+                disabled={!audioUrl || isUploading}
+              >
+                {isUploading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  'Start'
+                )}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              URL-en må være offentlig tilgjengelig
+            </p>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {uploadError && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{uploadError}</AlertDescription>
+          </Alert>
+        )}
       </CardContent>
     </Card>
   );

@@ -1,4 +1,4 @@
-import { CreditCard, LayoutDashboard, Settings, Users } from 'lucide-react';
+import { Bot, CreditCard, LayoutDashboard, LayoutTemplate, Play, Plug, Settings, Users, Workflow } from 'lucide-react';
 
 import { NavigationConfigSchema } from '@kit/ui/navigation-schema';
 
@@ -16,6 +16,26 @@ const getRoutes = (account: string) => [
         path: pathsConfig.app.accountHome.replace('[account]', account),
         Icon: <LayoutDashboard className={iconClasses} />,
         end: true,
+      },
+    ],
+  },
+  {
+    label: 'common:routes.agents',
+    children: [
+      {
+        label: 'common:routes.myAgents',
+        path: createPath(pathsConfig.app.agents, account),
+        Icon: <Bot className={iconClasses} />,
+      },
+      {
+        label: 'common:routes.templates',
+        path: createPath(pathsConfig.app.templates, account),
+        Icon: <LayoutTemplate className={iconClasses} />,
+      },
+      {
+        label: 'common:routes.integrations',
+        path: createPath(pathsConfig.app.integrations, account),
+        Icon: <Plug className={iconClasses} />,
       },
     ],
   },

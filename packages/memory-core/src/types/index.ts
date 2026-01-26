@@ -69,3 +69,19 @@ export type {
 } from './entities.js';
 
 export { NORWEGIAN_PATTERNS } from './entities.js';
+
+// Persona Types
+export type {
+  CommunicationStyle,
+  ProfessionalProfile,
+  PersonalPreferences,
+  RelationshipContext,
+  UserPersona,
+  QuestionCategory,
+  ProbingQuestion,
+  EmailCompositionRequest,
+  ComposedEmail,
+  ConversationInsight,
+} from './persona.js';
+
+export { createEmptyPersona } from './persona.js';

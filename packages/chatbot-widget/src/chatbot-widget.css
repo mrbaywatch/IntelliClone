@@ -1,4 +1,4 @@
-@import '../../../apps/chatbots/styles/globals.css';
+@import 'tailwindcss';
 
 @source "./chatbot-widget.tsx";
 @source "./index.ts";
