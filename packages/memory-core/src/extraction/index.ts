@@ -27,3 +27,10 @@ export {
   PatternPreferenceDetector,
   DEFAULT_PREFERENCE_DETECTOR_CONFIG,
 } from './preference-detector.js';
+
+export {
+  extractInsightsFromMessage,
+  extractConversationInsights,
+  analyzeWritingStyle,
+  extractSignaturePatterns,
+} from './insight-extractor.js';
