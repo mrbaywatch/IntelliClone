@@ -7,7 +7,7 @@ import { Trans } from '@kit/ui/trans';
 import { createI18nServerInstance } from '~/lib/i18n/i18n.server';
 import { withI18n } from '~/lib/i18n/with-i18n';
 
-import { DashboardDemo } from './_components/dashboard-demo';
+import { DashboardMeetings } from './_components/dashboard-meetings';
 import { TeamAccountLayoutPageHeader } from './_components/team-account-layout-page-header';
 
 interface TeamAccountHomePageProps {
@@ -35,7 +35,7 @@ function TeamAccountHomePage({ params }: TeamAccountHomePageProps) {
       />
 
       <PageBody>
-        <DashboardDemo />
+        <DashboardMeetings accountSlug={account} />
       </PageBody>
     </>
   );

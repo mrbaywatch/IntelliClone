@@ -7,3 +7,10 @@ export {
 } from './memory-service.js';
 
 export { ImportanceScorerService } from './importance-scorer.js';
+
+export {
+  PersonaService,
+  InMemoryPersonaStorage,
+  type PersonaStorage,
+  type PersonaServiceConfig,
+} from './persona-service.js';
