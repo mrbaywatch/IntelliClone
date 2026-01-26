@@ -5,3 +5,4 @@
 export { PersonaOverview } from './persona-overview';
 export { EmailComposer } from './email-composer';
 export { ProbingQuestions } from './probing-questions';
+export { MemoryDashboardClient } from './memory-dashboard-client';
