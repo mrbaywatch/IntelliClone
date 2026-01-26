@@ -7,4 +7,6 @@ export type { MemoryRetrievalQuery, MemoryRetrievalOptions, RetrievedMemory, Mem
 export { DEFAULT_RETRIEVAL_OPTIONS } from './retrieval.js';
 export type { EntityType, ExtractedEntity, EntityExtractionResult, NorwegianEntityPatterns, DetectedPreference, PreferenceCategory, PreferenceDetectionResult, ExtractedFact, FactExtractionResult, } from './entities.js';
 export { NORWEGIAN_PATTERNS } from './entities.js';
+export type { CommunicationStyle, ProfessionalProfile, PersonalPreferences, RelationshipContext, UserPersona, QuestionCategory, ProbingQuestion, EmailCompositionRequest, ComposedEmail, ConversationInsight, } from './persona.js';
+export { createEmptyPersona } from './persona.js';
 //# sourceMappingURL=index.d.ts.map

@@ -17,6 +17,7 @@ import { getLogger } from '@kit/shared/logger';
 import appConfig from '~/config/app.config';
 import { Database } from '~/lib/database.types';
 import { getVectorRetriever } from '~/lib/langchain/vector-store';
+import { learnFromConversation } from '~/lib/persona';
 
 /**
  * @name OPENAI_MODEL
@@ -257,6 +258,53 @@ class StreamEndCallbackHandler extends BaseCallbackHandler {
       },
       `Successfully inserted messages.`,
     );
+
+    // Learn from the conversation for persona building
+    // This runs async and doesn't block the response
+    this.learnFromConversationAsync(this.previousMessage, text, logger).catch(
+      (err) => {
+        logger.error(
+          { error: err, chatbotId: this.chatbotId },
+          'Failed to learn from conversation',
+        );
+      },
+    );
+  }
+
+  /**
+   * Async learning from conversation - extracts insights for persona building
+   */
+  private async learnFromConversationAsync(
+    userMessage: string,
+    assistantResponse: string,
+    logger: Awaited<ReturnType<typeof getLogger>>,
+  ) {
+    // For now, we use chatbotId as both userId and tenantId since we don't have
+    // user context in the callback. In production, this would be the actual user.
+    // TODO: Pass actual userId/tenantId through the callback handler
+    try {
+      const result = await learnFromConversation({
+        userId: this.conversationReferenceId ?? 'anonymous',
+        tenantId: this.chatbotId,
+        chatbotId: this.chatbotId,
+        userMessage,
+        assistantResponse,
+      });
+
+      if (result.insights.length > 0) {
+        logger.info(
+          {
+            chatbotId: this.chatbotId,
+            insightsCount: result.insights.length,
+            insights: result.insights.map((i) => i.type),
+          },
+          `Extracted ${result.insights.length} insights from conversation`,
+        );
+      }
+    } catch (error) {
+      // Don't fail silently, but also don't crash the main flow
+      throw error;
+    }
   }
 }
 

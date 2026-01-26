@@ -17,6 +17,7 @@ import {
   insertConversationMessages,
 } from '~/lib/langchain/langchain';
 import { getVectorRetriever } from '~/lib/langchain/vector-store';
+import { learnFromConversation } from '~/lib/persona';
 
 const CONVERSATION_ID_STORAGE_KEY = getConversationIdHeaderName();
 const isProduction = appConfig.production;

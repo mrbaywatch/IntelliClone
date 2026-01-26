@@ -1,4 +1,4 @@
-import { Book, CreditCard, User } from 'lucide-react';
+import { Book, CreditCard, User, MessageSquare, FileSearch, Scale, FolderOpen } from 'lucide-react';
 import { z } from 'zod';
 
 import { NavigationConfigSchema } from '@kit/ui/navigation-schema';
@@ -13,10 +13,25 @@ const routes = [
     label: 'common:routes.application',
     children: [
       {
-        label: 'documents:documentsTabLabel',
+        label: 'Hjem',
         path: pathsConfig.app.home,
-        Icon: <Book className={iconClasses} />,
+        Icon: <Scale className={iconClasses} />,
         end: true,
+      },
+      {
+        label: 'Dokumenter',
+        path: '/home/documents',
+        Icon: <FolderOpen className={iconClasses} />,
+      },
+      {
+        label: 'Kontraktsgjennomgang',
+        path: '/home/review',
+        Icon: <FileSearch className={iconClasses} />,
+      },
+      {
+        label: 'Juridisk Chat',
+        path: '/home/chat',
+        Icon: <MessageSquare className={iconClasses} />,
       },
     ],
   },

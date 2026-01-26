@@ -1,0 +1,15 @@
+{
+  "addDocument": "Legg til dokument",
+  "documentsTabLabel": "Dokumenter",
+  "documentsTitle": "Dokumenter",
+  "documentsTabDescription": "Se og administrer alle dokumentene du har lastet opp",
+  "addDocumentDescription": "Last opp et PDF-dokument fra datamaskinen din for å chatte med det",
+  "view": "Vis",
+  "name": "Navn",
+  "details": "Detaljer",
+  "title": "Tittel",
+  "confirm": "Bekreft",
+  "createdAt": "Opprettet",
+  "uploadDocument": "Last opp dokument",
+  "uploadDocumentDescription": "Last opp et PDF-dokument, og vår AI vil analysere det for deg."
+}

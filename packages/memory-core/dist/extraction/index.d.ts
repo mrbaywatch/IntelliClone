@@ -4,4 +4,5 @@ export type { EntityExtractorConfig, EntityExtractor, } from './entity-extractor
 export { PatternEntityExtractor, DEFAULT_ENTITY_EXTRACTOR_CONFIG, } from './entity-extractor.js';
 export type { PreferenceDetectorConfig, PreferenceDetector, } from './preference-detector.js';
 export { PatternPreferenceDetector, DEFAULT_PREFERENCE_DETECTOR_CONFIG, } from './preference-detector.js';
+export { extractInsightsFromMessage, extractConversationInsights, analyzeWritingStyle, extractSignaturePatterns, } from './insight-extractor.js';
 //# sourceMappingURL=index.d.ts.map
