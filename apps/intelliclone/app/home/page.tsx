@@ -27,7 +27,7 @@ interface ContextMenu {
 
 const createInitialMessage = (): Message => ({
   id: '1',
-  content: 'Hello! I\'m your IntelliClone AI assistant. How can I help you today?',
+  content: 'Hey! I\'m Erik, your AI assistant. How can I help you today?',
   role: 'assistant',
   timestamp: new Date(),
 });
@@ -325,13 +325,14 @@ export default function ChatDashboard() {
             </button>
 
             <div className="flex items-center justify-center gap-2.5 md:flex-1">
-              <div 
-                className="flex h-9 w-9 items-center justify-center rounded-full"
-                style={{ backgroundColor: '#D4A84B' }}
-              >
-                <Bot className="h-4.5 w-4.5 text-white" />
-              </div>
-              <h1 className="text-lg font-semibold text-gray-900">IntelliClone AI</h1>
+              <Image
+                src="/images/erik-avatar.png"
+                alt="Erik"
+                width={36}
+                height={36}
+                className="h-9 w-9 rounded-full object-cover"
+              />
+              <h1 className="text-lg font-semibold text-gray-900">Erik</h1>
             </div>
 
             {/* Spacer for alignment */}
@@ -349,20 +350,19 @@ export default function ChatDashboard() {
                   }`}
                 >
                   {/* Avatar */}
-                  <div
-                    className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full ${
-                      message.role === 'user'
-                        ? 'bg-gray-100'
-                        : ''
-                    }`}
-                    style={message.role === 'assistant' ? { backgroundColor: '#D4A84B' } : {}}
-                  >
-                    {message.role === 'user' ? (
+                  {message.role === 'user' ? (
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-100">
                       <User className="h-4 w-4 text-gray-500" />
-                    ) : (
-                      <Bot className="h-4 w-4 text-white" />
-                    )}
-                  </div>
+                    </div>
+                  ) : (
+                    <Image
+                      src="/images/erik-avatar.png"
+                      alt="Erik"
+                      width={32}
+                      height={32}
+                      className="h-8 w-8 flex-shrink-0 rounded-full object-cover"
+                    />
+                  )}
 
                   {/* Message Bubble */}
                   <div
@@ -381,12 +381,13 @@ export default function ChatDashboard() {
               {/* Typing Indicator */}
               {isTyping && (
                 <div className="flex items-end gap-2.5">
-                  <div 
-                    className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full"
-                    style={{ backgroundColor: '#D4A84B' }}
-                  >
-                    <Bot className="h-4 w-4 text-white" />
-                  </div>
+                  <Image
+                    src="/images/erik-avatar.png"
+                    alt="Erik"
+                    width={32}
+                    height={32}
+                    className="h-8 w-8 flex-shrink-0 rounded-full object-cover"
+                  />
                   <div 
                     className="rounded-2xl rounded-bl-lg px-4 py-4"
                     style={{ backgroundColor: '#D4A84B15' }}
