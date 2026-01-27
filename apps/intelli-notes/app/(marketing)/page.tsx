@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 
 import {
@@ -69,16 +68,35 @@ function Home() {
           }
           cta={<MainCallToActionButton />}
           image={
-            <Image
-              priority
-              className={
-                'dark:border-primary/10 w-full rounded-lg border border-gray-200 shadow-2xl'
-              }
-              width={3558}
-              height={2222}
-              src={`/images/dashboard.webp`}
-              alt={`Intelli-Notes Dashboard`}
-            />
+            <div className="dark:border-primary/10 w-full rounded-2xl border border-gray-200 bg-gradient-to-br from-primary/5 via-background to-primary/10 p-8 shadow-2xl">
+              <div className="flex flex-col items-center justify-center space-y-6 py-12">
+                {/* Audio wave visualization */}
+                <div className="flex items-end justify-center gap-1">
+                  {[40, 70, 55, 85, 60, 90, 50, 75, 45, 80, 65, 95, 55, 70, 40].map((height, i) => (
+                    <div
+                      key={i}
+                      className="bg-primary/60 w-2 rounded-full transition-all duration-300"
+                      style={{
+                        height: `${height}px`,
+                        animationDelay: `${i * 100}ms`,
+                      }}
+                    />
+                  ))}
+                </div>
+                {/* Transcription preview */}
+                <div className="w-full max-w-md space-y-3 rounded-xl bg-background/80 p-6 shadow-lg backdrop-blur">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
+                    <span className="text-muted-foreground text-sm">Transkriberer...</span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="bg-muted h-3 w-full rounded" />
+                    <div className="bg-muted h-3 w-4/5 rounded" />
+                    <div className="bg-muted h-3 w-3/4 rounded" />
+                  </div>
+                </div>
+              </div>
+            </div>
           }
         />
       </div>
@@ -560,14 +578,29 @@ function Home() {
             </ul>
           </div>
 
-          <div className="bg-muted/50 rounded-3xl p-8">
-            <Image
-              className="rounded-xl"
-              src={'/images/sign-in.webp'}
-              alt="Sikkerhet"
-              width={600}
-              height={600}
-            />
+          <div className="bg-muted/50 flex items-center justify-center rounded-3xl p-8">
+            {/* Shield/Lock Security Composition */}
+            <div className="relative flex h-64 w-64 items-center justify-center">
+              {/* Outer glow ring */}
+              <div className="absolute h-full w-full animate-pulse rounded-full bg-gradient-to-br from-primary/20 to-primary/5" />
+              {/* Shield background */}
+              <div className="bg-primary/10 relative flex h-48 w-40 flex-col items-center justify-center rounded-b-full rounded-t-3xl border-4 border-primary/30 shadow-xl">
+                {/* Lock icon */}
+                <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-primary/20">
+                  <Shield className="text-primary h-10 w-10" />
+                </div>
+                {/* Check marks */}
+                <div className="mt-4 flex gap-2">
+                  <CheckCircle2 className="text-primary h-5 w-5" />
+                  <CheckCircle2 className="text-primary h-5 w-5" />
+                  <CheckCircle2 className="text-primary h-5 w-5" />
+                </div>
+              </div>
+              {/* Decorative dots */}
+              <div className="bg-primary/40 absolute right-4 top-8 h-3 w-3 rounded-full" />
+              <div className="bg-primary/30 absolute bottom-12 left-4 h-2 w-2 rounded-full" />
+              <div className="bg-primary/20 absolute right-8 bottom-4 h-4 w-4 rounded-full" />
+            </div>
           </div>
         </div>
       </div>
