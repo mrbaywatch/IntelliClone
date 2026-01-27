@@ -47,27 +47,41 @@ export default function ChatDashboard() {
     setInput('');
     setIsTyping(true);
 
-    // Mock AI response
-    setTimeout(() => {
-      const responses = [
-        'That\'s a great question! Let me help you with that.',
-        'I understand. Here\'s what I can tell you...',
-        'Interesting! I\'d be happy to assist.',
-        'Thanks for sharing. Let me provide some insights.',
-      ];
-      
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)] ?? responses[0];
+    // Call ChatGPT API
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [...messages, userMessage].map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+        }),
+      });
+
+      const data = await response.json();
       
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: randomResponse,
+        content: data.message || 'Sorry, I could not generate a response.',
         role: 'assistant',
         timestamp: new Date(),
       };
       
       setMessages((prev) => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Chat error:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: 'Sorry, something went wrong. Please try again.',
+        role: 'assistant',
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
