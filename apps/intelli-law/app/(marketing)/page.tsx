@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {
   ArrowRightIcon,
   BookOpen,
+  ChevronDown,
   FileCheck,
   FileSearch,
   Lock,
@@ -274,6 +275,103 @@ function Home() {
         </div>
       </div>
 
+      {/* Testimonials Section */}
+      <div className={'container mx-auto'}>
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4">
+            Det norske jurister sier
+          </h2>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            Fra advokatfirmaer til bedriftsjurister og offentlig sektor — se hvordan Intelli-Law gjør en forskjell.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="bg-card border rounded-xl p-6">
+            <p className="text-muted-foreground mb-4 italic">
+              "Intelli-Law har revolusjonert hvordan vi gjør due diligence. Det som 
+              tidligere tok flere dager, klarer vi nå på timer. AI-en fanger opp 
+              detaljer vi ofte overså manuelt."
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                <span className="font-semibold text-blue-600">EK</span>
+              </div>
+              <div>
+                <div className="font-semibold text-sm">Erik Kristoffersen</div>
+                <div className="text-xs text-muted-foreground">Partner, Kristoffersen & Co Advokatfirma</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-card border rounded-xl p-6">
+            <p className="text-muted-foreground mb-4 italic">
+              "Som eneste jurist i selskapet var jeg overarbeidet med kontraktgjennomgang. 
+              Nå bruker jeg Intelli-Law til førstegjennomgang, og kan fokusere på 
+              de komplekse vurderingene."
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                <span className="font-semibold text-blue-600">SL</span>
+              </div>
+              <div>
+                <div className="font-semibold text-sm">Silje Larsen</div>
+                <div className="text-xs text-muted-foreground">Bedriftsjurist, NordicTech AS</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-card border rounded-xl p-6">
+            <p className="text-muted-foreground mb-4 italic">
+              "For kommunen var datasikkerhet avgjørende. Intelli-Law lagrer alt i 
+              Norge, og AI-en forstår forvaltningsrett og offentlighetsloven 
+              overraskende godt."
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                <span className="font-semibold text-blue-600">TH</span>
+              </div>
+              <div>
+                <div className="font-semibold text-sm">Thomas Haugen</div>
+                <div className="text-xs text-muted-foreground">Juridisk rådgiver, Bergen kommune</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* FAQ Section */}
+      <div className={'container mx-auto max-w-3xl'}>
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4">Ofte stilte spørsmål</h2>
+        </div>
+        <div className="space-y-4">
+          <FaqItem
+            question="Hvor nøyaktig er AI-analysen?"
+            answer="Intelli-Law oppnår typisk 90-95% nøyaktighet på dokumentanalyse sammenlignet med erfarne jurister. AI-en er trent på norsk lovverk og rettspraksis, og gir alltid kildehenvisninger slik at du enkelt kan verifisere. Vi anbefaler alltid menneskelig kvalitetssikring på viktige dokumenter."
+          />
+          <FaqItem
+            question="Kan jeg stole på at dataene mine er sikre?"
+            answer="Absolutt. Vi lagrer all data i Norge hos godkjente leverandører, bruker ende-til-ende kryptering, og følger GDPR fullt ut. Dine dokumenter brukes aldri til å trene våre modeller, og du har full kontroll med mulighet for eksport og sletting når som helst."
+          />
+          <FaqItem
+            question="Hvordan håndterer dere konfidensielle dokumenter?"
+            answer="Konfidensialitet er kjernen i vår tjeneste. Dokumenter krypteres både under overføring og lagring. Tilgang er strengt kontrollert, og vi har full revisjonslogg. Vi signerer gjerne NDA og kan tilpasse sikkerhetsoppsett for større kunder."
+          />
+          <FaqItem
+            question="Støtter dere spesifikke juridiske områder?"
+            answer="Ja, Intelli-Law er spesialisert på kontraktsrett, selskapsrett, arbeidsrett, personvern (GDPR), og forvaltningsrett. Vi utvider kontinuerlig med nye områder basert på kundeetterspørsel. AI-en er trent på tusenvis av norske lover, forskrifter og dommer."
+          />
+          <FaqItem
+            question="Hvor lang tid tar det å analysere et dokument?"
+            answer="De fleste dokumenter analyseres på under 60 sekunder. Lengre dokumenter (100+ sider) kan ta noen minutter. Du får varsling når analysen er ferdig, og kan jobbe med andre oppgaver i mellomtiden."
+          />
+          <FaqItem
+            question="Kan jeg integrere med eksisterende systemer?"
+            answer="Ja, vi tilbyr API-tilgang og ferdige integrasjoner mot vanlige dokumenthåndteringssystemer og saksbehandlingsløsninger. Vi kan også utvikle skreddersydde integrasjoner for større kunder."
+          />
+        </div>
+      </div>
+
       {/* Final CTA */}
       <div className={'container mx-auto'}>
         <div className="text-center bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl p-12 lg:p-16">
@@ -372,5 +470,17 @@ function BenefitItem({
         <p className="text-muted-foreground">{description}</p>
       </div>
     </div>
+  );
+}
+
+function FaqItem({ question, answer }: { question: string; answer: string }) {
+  return (
+    <details className="group border rounded-lg">
+      <summary className="flex items-center justify-between cursor-pointer p-4 font-medium hover:bg-muted/50 transition-colors">
+        {question}
+        <ChevronDown className="h-5 w-5 text-muted-foreground group-open:rotate-180 transition-transform" />
+      </summary>
+      <div className="px-4 pb-4 text-muted-foreground">{answer}</div>
+    </details>
   );
 }
