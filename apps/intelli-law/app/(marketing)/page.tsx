@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 
 import {
@@ -57,18 +56,6 @@ function Home() {
             </span>
           }
           cta={<MainCallToActionButton />}
-          image={
-            <Image
-              priority
-              className={
-                'dark:border-primary/10 rounded-2xl border border-gray-200 shadow-2xl'
-              }
-              width={3558}
-              height={2222}
-              src={`/images/dashboard.webp`}
-              alt={`Intelli-Law Dashboard`}
-            />
-          }
         />
       </div>
 
@@ -236,13 +223,23 @@ function Home() {
           <div className="flex justify-center">
             <div className="relative">
               <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl opacity-20 blur-xl" />
-              <Image
-                className="relative rounded-xl border shadow-lg"
-                src={'/images/dashboard.webp'}
-                width={600}
-                height={400}
-                alt="Intelli-Law i bruk"
-              />
+              <div className="relative w-[400px] h-[300px] lg:w-[500px] lg:h-[350px] rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 p-8 flex flex-col justify-center items-center shadow-2xl">
+                {/* Abstract visual representing AI-powered legal analysis */}
+                <div className="absolute inset-0 rounded-2xl overflow-hidden">
+                  <div className="absolute top-4 left-4 w-24 h-24 rounded-full bg-white/10 blur-2xl" />
+                  <div className="absolute bottom-8 right-8 w-32 h-32 rounded-full bg-white/10 blur-2xl" />
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full bg-white/5 blur-xl" />
+                </div>
+                <Scale className="h-16 w-16 text-white/90 mb-4 relative z-10" />
+                <div className="flex gap-2 relative z-10">
+                  <div className="w-3 h-3 rounded-full bg-white/60 animate-pulse" />
+                  <div className="w-3 h-3 rounded-full bg-white/40 animate-pulse delay-100" />
+                  <div className="w-3 h-3 rounded-full bg-white/20 animate-pulse delay-200" />
+                </div>
+                <p className="text-white/80 text-sm mt-4 text-center relative z-10">
+                  AI-drevet analyse
+                </p>
+              </div>
             </div>
           </div>
         </div>
