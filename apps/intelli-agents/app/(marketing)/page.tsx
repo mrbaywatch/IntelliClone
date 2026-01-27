@@ -5,6 +5,7 @@ import {
   ArrowRightIcon,
   BotIcon,
   BrainCircuitIcon,
+  ChevronDown,
   ClockIcon,
   PlugZapIcon,
   RocketIcon,
@@ -293,6 +294,103 @@ function Home() {
         </div>
       </div>
 
+      {/* Testimonials */}
+      <div className="container mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4">
+            Det norske bedrifter sier
+          </h2>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            Bedrifter over hele Norge bruker Intelli-Agents for å spare tid og jobbe smartere.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="bg-card border rounded-xl p-6">
+            <p className="text-muted-foreground mb-4 italic">
+              "Vi sparer over 20 timer i uken på oppgaver som før krevde manuelt arbeid.
+              AI-agentene tar seg av oppfølging, rapporter og rutinejobber — helt automatisk."
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+                <span className="text-primary font-semibold">TN</span>
+              </div>
+              <div>
+                <div className="text-sm font-semibold">Thomas Nilsen</div>
+                <div className="text-muted-foreground text-xs">Daglig leder, Bygg & Prosjekt AS</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-card border rounded-xl p-6">
+            <p className="text-muted-foreground mb-4 italic">
+              "Lead-oppfølging var et mareritt før. Nå svarer agenten innen sekunder,
+              kvalifiserer leads, og booker møter for salgsteamet. Konverteringsraten vår har doblet seg."
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+                <span className="text-primary font-semibold">SE</span>
+              </div>
+              <div>
+                <div className="text-sm font-semibold">Silje Eriksen</div>
+                <div className="text-muted-foreground text-xs">Markedssjef, Digital Vekst Norge</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-card border rounded-xl p-6">
+            <p className="text-muted-foreground mb-4 italic">
+              "Som IT-ansvarlig var jeg skeptisk til AI-automatisering. Men med full logg,
+              rollestyring og GDPR-kontroll føler jeg meg trygg. Endelig en løsning som gir oss oversikt."
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+                <span className="text-primary font-semibold">AJ</span>
+              </div>
+              <div>
+                <div className="text-sm font-semibold">Anders Johansen</div>
+                <div className="text-muted-foreground text-xs">IT-ansvarlig, Norsk Industri Gruppen</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* FAQ */}
+      <div className="container mx-auto max-w-3xl">
+        <div className="mb-12 text-center">
+          <h2 className="mb-4 text-3xl font-bold">Ofte stilte spørsmål</h2>
+          <p className="text-muted-foreground text-lg">
+            Alt du lurer på om Intelli-Agents og AI-automatisering.
+          </p>
+        </div>
+        <div className="space-y-4">
+          <FaqItem
+            question="Trenger jeg teknisk bakgrunn for å bruke dette?"
+            answer="Nei! Intelli-Agents er bygget for å være enkelt. Du bygger automatiseringer visuelt ved å dra og slippe — ingen koding nødvendig. Hvis du kan bruke et regneark, kan du bygge AI-agenter."
+          />
+          <FaqItem
+            question="Hvilke systemer kan agentene koble til?"
+            answer="Vi har integrasjoner med over 100 systemer, inkludert norske favoritter som Tripletex, Fiken, og 24SevenOffice. I tillegg fungerer vi med internasjonale verktøy som Slack, HubSpot, Salesforce, Google Workspace og mange flere."
+          />
+          <FaqItem
+            question="Hvor sikre er automatiseringene?"
+            answer="Veldig sikre. All data er kryptert, lagret i EU, og vi er fullt GDPR-kompatible. Du har full kontroll med rollebasert tilgang, og alle handlinger logges for revisjon. Enterprise-planen inkluderer også SSO og dedikert support."
+          />
+          <FaqItem
+            question="Hva skjer hvis en agent feiler?"
+            answer="Agentene har innebygd feilhåndtering. Hvis noe går galt, får du varsel umiddelbart, og du kan se nøyaktig hva som skjedde i kjøringsloggen. Du kan enkelt fikse og kjøre på nytt — ingen data går tapt."
+          />
+          <FaqItem
+            question="Kan jeg se hva agentene gjør?"
+            answer="Absolutt. Du har full oversikt over alle kjøringer i sanntid. Se hva som trigger agenten, hvilke steg den tar, og resultatet. Perfekt for feilsøking og optimalisering."
+          />
+          <FaqItem
+            question="Hvordan kommer jeg i gang?"
+            answer="Enkelt! Opprett en gratis konto, velg en mal eller bygg din egen arbeidsflyt, koble til systemene dine, og aktiver agenten. De fleste er i gang på under 30 minutter. Trenger du hjelp, er supporten vår klar."
+          />
+        </div>
+      </div>
+
       {/* Final CTA */}
       <div className={'container mx-auto'}>
         <div className="bg-primary text-primary-foreground rounded-2xl p-8 text-center md:p-12">
@@ -400,5 +498,17 @@ function BenefitItem({ text }: { text: string }) {
       </div>
       <span>{text}</span>
     </li>
+  );
+}
+
+function FaqItem({ question, answer }: { question: string; answer: string }) {
+  return (
+    <details className="group rounded-lg border">
+      <summary className="hover:bg-muted/50 flex cursor-pointer items-center justify-between p-4 font-medium transition-colors">
+        {question}
+        <ChevronDown className="text-muted-foreground h-5 w-5 transition-transform group-open:rotate-180" />
+      </summary>
+      <div className="text-muted-foreground px-4 pb-4">{answer}</div>
+    </details>
   );
 }
