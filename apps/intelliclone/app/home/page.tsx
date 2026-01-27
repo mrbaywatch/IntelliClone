@@ -27,7 +27,7 @@ interface ContextMenu {
 
 const createInitialMessage = (): Message => ({
   id: '1',
-  content: 'Hey! I\'m Erik, your AI assistant. How can I help you today?',
+  content: 'Hey! 👋 I\'m Erik, your personal assistant. Let\'s get you onboarded!\n\nFirst off, what\'s your name?',
   role: 'assistant',
   timestamp: new Date(),
 });
