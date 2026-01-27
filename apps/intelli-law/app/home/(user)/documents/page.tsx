@@ -30,6 +30,15 @@ interface DocumentsPageProps {
   }>;
 }
 
+interface DocumentRow {
+  id: string;
+  created_at: string;
+  title: string;
+  document_type?: string;
+  risk_level?: string;
+  analysis_completed?: boolean;
+}
+
 async function DocumentsPage({ searchParams }: DocumentsPageProps) {
   const { id: accountId } = await requireUserInServerComponent();
   const params = await searchParams;
@@ -39,31 +48,27 @@ async function DocumentsPage({ searchParams }: DocumentsPageProps) {
 
   const client = getSupabaseServerClient();
 
-  // Fetch documents with analysis info
-  const { data: documents, count } = await client
-    .from('documents')
+  // Fetch documents with analysis info - using type assertion as DB types may not include legal fields
+  const result = await client
+    .from('documents' as any)
     .select('*', { count: 'exact' })
     .eq('account_id', accountId)
     .order('created_at', { ascending: false })
     .range((page - 1) * pageSize, page * pageSize - 1);
+  
+  const documents = result.data as DocumentRow[] | null;
+  const count = result.count;
 
   const pageCount = count ? Math.ceil(count / pageSize) : 1;
 
   // Get stats
   const stats = {
     total: count || 0,
-    analyzed: documents?.filter((d: { analysis_completed?: boolean }) => d.analysis_completed).length || 0,
-    highRisk: documents?.filter((d: { risk_level?: string }) => d.risk_level === 'high' || d.risk_level === 'critical').length || 0,
+    analyzed: documents?.filter((d) => d.analysis_completed).length || 0,
+    highRisk: documents?.filter((d) => d.risk_level === 'high' || d.risk_level === 'critical').length || 0,
   };
 
-  const formattedDocuments = (documents || []).map((doc: {
-    id: string;
-    created_at: string;
-    title: string;
-    document_type?: string;
-    risk_level?: string;
-    analysis_completed?: boolean;
-  }) => ({
+  const formattedDocuments = (documents || []).map((doc) => ({
     id: doc.id,
     createdAt: doc.created_at,
     title: doc.title,

@@ -31,10 +31,10 @@ import {
 import { Input } from '@kit/ui/input';
 import { Label } from '@kit/ui/label';
 import { Skeleton } from '@kit/ui/skeleton';
-import { useSupabase } from '@kit/supabase/hooks/use-supabase';
-import { toast } from 'sonner';
+import { useTypedSupabase } from '~/lib/supabase/use-supabase';
+import { toast } from '@kit/ui/sonner';
 
-import type { AgentIntegration, IntegrationType } from '@/lib/agents/types';
+import type { AgentIntegration, IntegrationType } from '~/lib/agents/types';
 
 interface IntegrationsContainerProps {
   accountSlug: string;
@@ -187,7 +187,7 @@ const categoryLabels: Record<string, string> = {
 };
 
 export function IntegrationsContainer({ accountSlug }: IntegrationsContainerProps) {
-  const supabase = useSupabase();
+  const supabase = useTypedSupabase();
   const queryClient = useQueryClient();
   const [connectDialogOpen, setConnectDialogOpen] = useState(false);
   const [selectedIntegration, setSelectedIntegration] = useState<IntegrationConfig | null>(null);

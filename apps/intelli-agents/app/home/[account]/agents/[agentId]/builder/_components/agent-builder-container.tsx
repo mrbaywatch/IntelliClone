@@ -27,11 +27,11 @@ import {
   SelectValue,
 } from '@kit/ui/select';
 import { Skeleton } from '@kit/ui/skeleton';
-import { useSupabase } from '@kit/supabase/hooks/use-supabase';
-import { toast } from 'sonner';
+import { useTypedSupabase } from '~/lib/supabase/use-supabase';
+import { toast } from '@kit/ui/sonner';
 
-import type { Agent, Workflow } from '@/lib/agents/types';
-import { WorkflowBuilder } from '@/components/agents/workflow-builder/workflow-builder';
+import type { Agent, Workflow } from '~/lib/agents/types';
+import { WorkflowBuilder } from '~/components/agents/workflow-builder/workflow-builder';
 
 interface AgentBuilderContainerProps {
   accountSlug: string;
@@ -39,7 +39,7 @@ interface AgentBuilderContainerProps {
 }
 
 export function AgentBuilderContainer({ accountSlug, agentId }: AgentBuilderContainerProps) {
-  const supabase = useSupabase();
+  const supabase = useTypedSupabase();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -97,17 +97,18 @@ export function AgentBuilderContainer({ accountSlug, agentId }: AgentBuilderCont
     mutationFn: async () => {
       if (!localWorkflow) throw new Error('No workflow to save');
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { error } = await supabase
         .from('agents')
         .update({
           name: formData.name,
           description: formData.description,
           system_prompt: formData.systemPrompt,
-          workflow: localWorkflow,
+          workflow: localWorkflow as any,
           model_preferences: {
             tier: formData.modelTier,
             maxTokens: formData.maxTokens,
-          },
+          } as any,
           max_executions_per_hour: formData.maxExecutionsPerHour,
           max_executions_per_day: formData.maxExecutionsPerDay,
           updated_at: new Date().toISOString(),

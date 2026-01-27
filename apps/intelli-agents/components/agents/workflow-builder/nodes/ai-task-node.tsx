@@ -12,7 +12,7 @@ import {
   Languages,
   Sparkles,
 } from 'lucide-react';
-import type { WorkflowNodeData, ActionType } from '@/lib/agents/types';
+import type { WorkflowNodeData, ActionType } from '~/lib/agents/types';
 
 // Icon mapping for AI task types
 const aiIcons: Record<string, React.ComponentType<{ className?: string }>> = {

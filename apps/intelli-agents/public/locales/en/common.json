@@ -65,7 +65,11 @@
     "dashboard": "Dashboard",
     "settings": "Settings",
     "profile": "Profile",
-    "application": "Application"
+    "application": "Application",
+    "agents": "Agents",
+    "myAgents": "My Agents",
+    "templates": "Templates",
+    "integrations": "Integrations"
   },
   "roles": {
     "owner": {

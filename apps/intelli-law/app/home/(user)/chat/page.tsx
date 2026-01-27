@@ -23,18 +23,32 @@ import { LegalChatContainer } from './_components/legal-chat-container';
 import { SuggestedQuestions } from './_components/suggested-questions';
 import { RecentChats } from './_components/recent-chats';
 
+interface ChatSession {
+  id: string;
+  title: string;
+  category?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 async function LegalChatPage() {
   const { id: accountId } = await requireUserInServerComponent();
   const client = getSupabaseServerClient();
 
-  // Fetch recent chat sessions
-  const { data: recentSessions } = await client
-    .from('legal_chat_sessions')
-    .select('id, title, category, created_at, updated_at')
-    .eq('account_id', accountId)
-    .eq('is_archived', false)
-    .order('updated_at', { ascending: false })
-    .limit(5);
+  // Fetch recent chat sessions - using type assertion as table may not exist yet
+  let recentSessions: ChatSession[] = [];
+  try {
+    const result = await client
+      .from('legal_chat_sessions' as any)
+      .select('id, title, category, created_at, updated_at')
+      .eq('account_id', accountId)
+      .eq('is_archived', false)
+      .order('updated_at', { ascending: false })
+      .limit(5);
+    recentSessions = (result.data as unknown as ChatSession[]) || [];
+  } catch {
+    recentSessions = [];
+  }
 
   return (
     <>
@@ -85,13 +99,13 @@ async function LegalChatPage() {
             </Card>
 
             {/* Recent Conversations */}
-            {recentSessions && recentSessions.length > 0 && (
+            {recentSessions.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base">Nylige samtaler</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <RecentChats sessions={recentSessions || []} />
+                  <RecentChats sessions={recentSessions} />
                 </CardContent>
               </Card>
             )}

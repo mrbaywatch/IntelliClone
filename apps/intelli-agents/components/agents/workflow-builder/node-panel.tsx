@@ -120,7 +120,7 @@ const groupedTemplates = nodeTemplates.reduce((acc, template) => {
   if (!acc[template.category]) {
     acc[template.category] = [];
   }
-  acc[template.category].push(template);
+  acc[template.category]!.push(template);
   return acc;
 }, {} as Record<string, NodeTemplate[]>);
 

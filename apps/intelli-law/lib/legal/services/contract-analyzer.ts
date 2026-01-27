@@ -525,7 +525,9 @@ export class ContractAnalyzer {
     let match;
     
     while ((match = bulletPattern.exec(text)) !== null) {
-      points.push(match[1].trim());
+      if (match[1]) {
+        points.push(match[1].trim());
+      }
     }
     
     return points;

@@ -18,10 +18,10 @@ import {
   DropdownMenuTrigger,
 } from '@kit/ui/dropdown-menu';
 import { Skeleton } from '@kit/ui/skeleton';
-import { useSupabase } from '@kit/supabase/hooks/use-supabase';
+import { useTypedSupabase } from '~/lib/supabase/use-supabase';
 import { Trans } from '@kit/ui/trans';
 
-import type { Agent, AgentStatus } from '@/lib/agents/types';
+import type { Agent, AgentStatus } from '~/lib/agents/types';
 
 interface AgentsListContainerProps {
   accountSlug: string;
@@ -44,7 +44,7 @@ const statusLabels: Record<AgentStatus, string> = {
 };
 
 export function AgentsListContainer({ accountSlug }: AgentsListContainerProps) {
-  const supabase = useSupabase();
+  const supabase = useTypedSupabase();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');

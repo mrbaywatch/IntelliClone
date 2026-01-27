@@ -1,4 +1,4 @@
-import { Book, CreditCard, User, MessageSquare, FileSearch, Scale, FolderOpen } from 'lucide-react';
+import { Book, CreditCard, User, MessageSquare, FileSearch, Scale, FolderOpen, Briefcase, BookOpen, FileText } from 'lucide-react';
 import { z } from 'zod';
 
 import { NavigationConfigSchema } from '@kit/ui/navigation-schema';
@@ -32,6 +32,21 @@ const routes = [
         label: 'Juridisk Chat',
         path: '/home/chat',
         Icon: <MessageSquare className={iconClasses} />,
+      },
+      {
+        label: 'Saker',
+        path: '/home/cases',
+        Icon: <Briefcase className={iconClasses} />,
+      },
+      {
+        label: 'Maler',
+        path: '/home/templates',
+        Icon: <FileText className={iconClasses} />,
+      },
+      {
+        label: 'Juridisk Søk',
+        path: '/home/research',
+        Icon: <BookOpen className={iconClasses} />,
       },
     ],
   },

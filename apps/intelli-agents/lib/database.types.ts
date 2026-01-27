@@ -662,6 +662,399 @@ export type Database = {
           },
         ]
       }
+      // =============================================
+      // AGENT TABLES
+      // =============================================
+      agents: {
+        Row: {
+          id: string
+          account_id: string
+          name: string
+          description: string | null
+          icon: string
+          color: string
+          status: Database["public"]["Enums"]["agent_status"]
+          is_template: boolean
+          template_id: string | null
+          workflow: Json
+          config: Json
+          system_prompt: string | null
+          model_preferences: Json
+          max_executions_per_hour: number
+          max_executions_per_day: number
+          total_executions: number
+          successful_executions: number
+          failed_executions: number
+          last_execution_at: string | null
+          created_at: string
+          updated_at: string
+          published_at: string | null
+        }
+        Insert: {
+          id?: string
+          account_id: string
+          name: string
+          description?: string | null
+          icon?: string
+          color?: string
+          status?: Database["public"]["Enums"]["agent_status"]
+          is_template?: boolean
+          template_id?: string | null
+          workflow?: Json
+          config?: Json
+          system_prompt?: string | null
+          model_preferences?: Json
+          max_executions_per_hour?: number
+          max_executions_per_day?: number
+          total_executions?: number
+          successful_executions?: number
+          failed_executions?: number
+          last_execution_at?: string | null
+          created_at?: string
+          updated_at?: string
+          published_at?: string | null
+        }
+        Update: {
+          id?: string
+          account_id?: string
+          name?: string
+          description?: string | null
+          icon?: string
+          color?: string
+          status?: Database["public"]["Enums"]["agent_status"]
+          is_template?: boolean
+          template_id?: string | null
+          workflow?: Json
+          config?: Json
+          system_prompt?: string | null
+          model_preferences?: Json
+          max_executions_per_hour?: number
+          max_executions_per_day?: number
+          total_executions?: number
+          successful_executions?: number
+          failed_executions?: number
+          last_execution_at?: string | null
+          created_at?: string
+          updated_at?: string
+          published_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agents_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agents_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_triggers: {
+        Row: {
+          id: string
+          agent_id: string
+          trigger_type: Database["public"]["Enums"]["trigger_type"]
+          name: string
+          description: string | null
+          is_enabled: boolean
+          config: Json
+          webhook_url: string | null
+          webhook_secret: string | null
+          total_fires: number
+          last_fired_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          agent_id: string
+          trigger_type: Database["public"]["Enums"]["trigger_type"]
+          name: string
+          description?: string | null
+          is_enabled?: boolean
+          config?: Json
+          webhook_url?: string | null
+          webhook_secret?: string | null
+          total_fires?: number
+          last_fired_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          agent_id?: string
+          trigger_type?: Database["public"]["Enums"]["trigger_type"]
+          name?: string
+          description?: string | null
+          is_enabled?: boolean
+          config?: Json
+          webhook_url?: string | null
+          webhook_secret?: string | null
+          total_fires?: number
+          last_fired_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_triggers_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_executions: {
+        Row: {
+          id: string
+          agent_id: string
+          trigger_id: string | null
+          status: Database["public"]["Enums"]["execution_status"]
+          trigger_data: Json
+          output_data: Json | null
+          error_message: string | null
+          error_details: Json | null
+          context: Json
+          variables: Json
+          started_at: string | null
+          completed_at: string | null
+          duration_ms: number | null
+          tokens_used: number
+          estimated_cost: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          agent_id: string
+          trigger_id?: string | null
+          status?: Database["public"]["Enums"]["execution_status"]
+          trigger_data?: Json
+          output_data?: Json | null
+          error_message?: string | null
+          error_details?: Json | null
+          context?: Json
+          variables?: Json
+          started_at?: string | null
+          completed_at?: string | null
+          duration_ms?: number | null
+          tokens_used?: number
+          estimated_cost?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          agent_id?: string
+          trigger_id?: string | null
+          status?: Database["public"]["Enums"]["execution_status"]
+          trigger_data?: Json
+          output_data?: Json | null
+          error_message?: string | null
+          error_details?: Json | null
+          context?: Json
+          variables?: Json
+          started_at?: string | null
+          completed_at?: string | null
+          duration_ms?: number | null
+          tokens_used?: number
+          estimated_cost?: number
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_executions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_executions_trigger_id_fkey"
+            columns: ["trigger_id"]
+            isOneToOne: false
+            referencedRelation: "agent_triggers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      execution_steps: {
+        Row: {
+          id: string
+          execution_id: string
+          node_id: string
+          step_order: number
+          action_type: string | null
+          status: Database["public"]["Enums"]["execution_status"]
+          input_data: Json | null
+          output_data: Json | null
+          error_message: string | null
+          started_at: string | null
+          completed_at: string | null
+          duration_ms: number | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          execution_id: string
+          node_id: string
+          step_order: number
+          action_type?: string | null
+          status?: Database["public"]["Enums"]["execution_status"]
+          input_data?: Json | null
+          output_data?: Json | null
+          error_message?: string | null
+          started_at?: string | null
+          completed_at?: string | null
+          duration_ms?: number | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          execution_id?: string
+          node_id?: string
+          step_order?: number
+          action_type?: string | null
+          status?: Database["public"]["Enums"]["execution_status"]
+          input_data?: Json | null
+          output_data?: Json | null
+          error_message?: string | null
+          started_at?: string | null
+          completed_at?: string | null
+          duration_ms?: number | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "execution_steps_execution_id_fkey"
+            columns: ["execution_id"]
+            isOneToOne: false
+            referencedRelation: "agent_executions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_templates: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          category: Database["public"]["Enums"]["template_category"]
+          icon: string
+          color: string
+          workflow: Json
+          config: Json
+          system_prompt: string | null
+          tags: string[]
+          difficulty: string
+          estimated_setup_minutes: number
+          is_norwegian: boolean
+          supported_integrations: string[]
+          usage_count: number
+          display_order: number
+          is_featured: boolean
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          category: Database["public"]["Enums"]["template_category"]
+          icon?: string
+          color?: string
+          workflow?: Json
+          config?: Json
+          system_prompt?: string | null
+          tags?: string[]
+          difficulty?: string
+          estimated_setup_minutes?: number
+          is_norwegian?: boolean
+          supported_integrations?: string[]
+          usage_count?: number
+          display_order?: number
+          is_featured?: boolean
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          category?: Database["public"]["Enums"]["template_category"]
+          icon?: string
+          color?: string
+          workflow?: Json
+          config?: Json
+          system_prompt?: string | null
+          tags?: string[]
+          difficulty?: string
+          estimated_setup_minutes?: number
+          is_norwegian?: boolean
+          supported_integrations?: string[]
+          usage_count?: number
+          display_order?: number
+          is_featured?: boolean
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      agent_integrations: {
+        Row: {
+          id: string
+          account_id: string
+          integration_type: Database["public"]["Enums"]["integration_type"]
+          name: string
+          credentials: Json | null
+          is_connected: boolean
+          last_sync_at: string | null
+          last_error: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          account_id: string
+          integration_type: Database["public"]["Enums"]["integration_type"]
+          name: string
+          credentials?: Json | null
+          is_connected?: boolean
+          last_sync_at?: string | null
+          last_error?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          account_id?: string
+          integration_type?: Database["public"]["Enums"]["integration_type"]
+          name?: string
+          credentials?: Json | null
+          is_connected?: boolean
+          last_sync_at?: string | null
+          last_error?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_integrations_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       user_account_workspace: {
@@ -968,6 +1361,43 @@ export type Database = {
         | "incomplete"
         | "incomplete_expired"
         | "paused"
+      // Agent enums
+      agent_status: "draft" | "active" | "paused" | "error" | "archived"
+      trigger_type:
+        | "email_received"
+        | "webhook"
+        | "schedule"
+        | "manual"
+        | "form_submission"
+        | "crm_event"
+        | "payment_received"
+        | "chat_message"
+      execution_status:
+        | "pending"
+        | "running"
+        | "completed"
+        | "failed"
+        | "cancelled"
+        | "timeout"
+      template_category:
+        | "email"
+        | "customer_support"
+        | "sales"
+        | "data_entry"
+        | "social_media"
+        | "finance"
+        | "hr"
+        | "custom"
+      integration_type:
+        | "tripletex"
+        | "fiken"
+        | "vipps"
+        | "gmail"
+        | "outlook"
+        | "slack"
+        | "teams"
+        | "hubspot"
+        | "twilio"
     }
     CompositeTypes: {
       invitation: {

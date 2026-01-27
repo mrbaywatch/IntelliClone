@@ -37,10 +37,10 @@ import {
 import { Textarea } from '@kit/ui/textarea';
 import { Label } from '@kit/ui/label';
 import { Skeleton } from '@kit/ui/skeleton';
-import { useSupabase } from '@kit/supabase/hooks/use-supabase';
-import { toast } from 'sonner';
+import { useTypedSupabase } from '~/lib/supabase/use-supabase';
+import { toast } from '@kit/ui/sonner';
 
-import type { Agent, AgentExecution, AgentStatus } from '@/lib/agents/types';
+import type { Agent, AgentExecution, AgentStatus } from '~/lib/agents/types';
 import { ExecutionsList } from './executions-list';
 
 interface AgentDetailContainerProps {
@@ -65,7 +65,7 @@ const statusLabels: Record<AgentStatus, string> = {
 };
 
 export function AgentDetailContainer({ accountSlug, agentId }: AgentDetailContainerProps) {
-  const supabase = useSupabase();
+  const supabase = useTypedSupabase();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isRunDialogOpen, setIsRunDialogOpen] = useState(false);
@@ -142,15 +142,16 @@ export function AgentDetailContainer({ accountSlug, agentId }: AgentDetailContai
 
   // Run agent mutation
   const runAgentMutation = useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: async (data: Record<string, unknown>) => {
       const { data: execution, error } = await supabase
         .from('agent_executions')
         .insert({
           agent_id: agentId,
-          status: 'pending',
-          trigger_data: data,
-          context: {},
-          variables: {},
+          status: 'pending' as const,
+          trigger_data: data as any,
+          context: {} as any,
+          variables: {} as any,
         })
         .select()
         .single();
@@ -199,6 +200,7 @@ export function AgentDetailContainer({ accountSlug, agentId }: AgentDetailContai
 
       if (!account) throw new Error('Account not found');
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await supabase
         .from('agents')
         .insert({
@@ -207,11 +209,11 @@ export function AgentDetailContainer({ accountSlug, agentId }: AgentDetailContai
           description: agent.description,
           icon: agent.icon,
           color: agent.color,
-          status: 'draft',
-          workflow: agent.workflow,
-          config: agent.config,
+          status: 'draft' as const,
+          workflow: agent.workflow as any,
+          config: agent.config as any,
           system_prompt: agent.systemPrompt,
-          model_preferences: agent.modelPreferences,
+          model_preferences: agent.modelPreferences as any,
         })
         .select()
         .single();

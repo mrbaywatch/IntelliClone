@@ -50,9 +50,9 @@ export function ContractUploadZone({ accountId }: ContractUploadZoneProps) {
       if (uploadError) throw uploadError;
       setProgress(40);
 
-      // Create document record
+      // Create document record - using type assertion as DB types may not include legal fields
       const { data: doc, error: docError } = await supabase
-        .from('documents')
+        .from('documents' as any)
         .insert({
           title: file.name.replace(/\.[^/.]+$/, ''),
           content: '', // Will be extracted
@@ -64,6 +64,7 @@ export function ContractUploadZone({ accountId }: ContractUploadZoneProps) {
         .single();
 
       if (docError) throw docError;
+      const docData = doc as { id: string };
       setProgress(60);
 
       setUploadState('analyzing');
@@ -73,7 +74,7 @@ export function ContractUploadZone({ accountId }: ContractUploadZoneProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          documentId: doc.id,
+          documentId: docData.id,
           storagePath: uploadData.path,
         }),
       });
@@ -86,7 +87,7 @@ export function ContractUploadZone({ accountId }: ContractUploadZoneProps) {
       setProgress(100);
       setUploadState('complete');
 
-      return doc;
+      return docData;
     },
     onSuccess: (doc) => {
       toast.success('Dokument lastet opp og analysert!');

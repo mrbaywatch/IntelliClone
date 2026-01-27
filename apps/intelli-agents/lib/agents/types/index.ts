@@ -232,6 +232,20 @@ export interface AgentTrigger {
 }
 
 /**
+ * Trigger payload - data passed when a trigger fires
+ */
+export interface TriggerPayload {
+  /** Parsed trigger data */
+  data: Record<string, unknown>;
+  /** Metadata about the trigger event */
+  metadata: {
+    receivedAt: Date;
+    source: string;
+    rawData?: unknown;
+  };
+}
+
+/**
  * Trigger configuration union type
  */
 export type TriggerConfig =

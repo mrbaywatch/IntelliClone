@@ -32,28 +32,40 @@ import { requireUserInServerComponent } from '~/lib/server/require-user-in-serve
 import { ContractUploadZone } from './_components/contract-upload-zone';
 import { RecentReviews } from './_components/recent-reviews';
 
+interface AnalyzedDocument {
+  id: string;
+  title: string;
+  document_type?: string;
+  risk_level?: string;
+  risk_score?: number;
+  analysis_completed?: boolean;
+  created_at: string;
+}
+
 async function ContractReviewPage() {
   const { id: accountId } = await requireUserInServerComponent();
   const client = getSupabaseServerClient();
 
-  // Fetch recent analyzed documents
-  const { data: recentDocuments } = await client
-    .from('documents')
+  // Fetch recent analyzed documents - using type assertion as DB types may not include legal fields
+  const result = await client
+    .from('documents' as any)
     .select('id, title, document_type, risk_level, risk_score, analysis_completed, created_at')
     .eq('account_id', accountId)
     .eq('analysis_completed', true)
     .order('created_at', { ascending: false })
     .limit(5);
+  
+  const recentDocuments = result.data as AnalyzedDocument[] | null;
 
   // Get stats
   const { count: totalAnalyzed } = await client
-    .from('documents')
+    .from('documents' as any)
     .select('*', { count: 'exact', head: true })
     .eq('account_id', accountId)
     .eq('analysis_completed', true);
 
   const { count: highRiskCount } = await client
-    .from('documents')
+    .from('documents' as any)
     .select('*', { count: 'exact', head: true })
     .eq('account_id', accountId)
     .in('risk_level', ['high', 'critical']);

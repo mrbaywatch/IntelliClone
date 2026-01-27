@@ -42,23 +42,29 @@ export const generateMetadata = async () => {
   };
 };
 
+interface DocumentWithAnalysis {
+  id: string;
+  risk_level?: string;
+  analysis_completed?: boolean;
+}
+
 function UserHomePage() {
   const workspace = use(loadUserWorkspace());
   const client = getSupabaseServerClient<Database>();
   const accountId = workspace.user.id;
 
-  // Fetch dashboard stats
+  // Fetch dashboard stats - using type assertion as DB types may not include legal fields
   const { data: documents } = use(
     client
       .from('documents')
       .select('id, risk_level, analysis_completed')
       .eq('account_id', accountId)
-  );
+  ) as { data: DocumentWithAnalysis[] | null };
 
   const stats = {
     totalDocuments: documents?.length || 0,
-    analyzedDocuments: documents?.filter((d: { analysis_completed?: boolean }) => d.analysis_completed).length || 0,
-    highRiskDocuments: documents?.filter((d: { risk_level?: string }) => 
+    analyzedDocuments: documents?.filter((d) => d.analysis_completed).length || 0,
+    highRiskDocuments: documents?.filter((d) => 
       d.risk_level === 'high' || d.risk_level === 'critical'
     ).length || 0,
   };

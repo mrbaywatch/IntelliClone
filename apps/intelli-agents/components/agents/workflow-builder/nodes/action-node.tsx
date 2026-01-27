@@ -17,7 +17,7 @@ import {
   Clock,
   Banknote,
 } from 'lucide-react';
-import type { WorkflowNodeData, ActionType } from '@/lib/agents/types';
+import type { WorkflowNodeData, ActionType } from '~/lib/agents/types';
 
 // Icon mapping for action types
 const actionIcons: Record<ActionType, React.ComponentType<{ className?: string }>> = {

@@ -4,7 +4,7 @@ import { memo } from 'react';
 import { Handle, Position, type NodeProps } from 'reactflow';
 import { cn } from '@kit/ui/utils';
 import { GitBranch } from 'lucide-react';
-import type { WorkflowNodeData } from '@/lib/agents/types';
+import type { WorkflowNodeData } from '~/lib/agents/types';
 
 export const ConditionNode = memo(({ data, selected }: NodeProps<WorkflowNodeData>) => {
   const trueLabel = data.conditionConfig?.trueLabel || 'Ja';

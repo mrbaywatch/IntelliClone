@@ -39,10 +39,10 @@ import {
   DialogTitle,
 } from '@kit/ui/dialog';
 import { Skeleton } from '@kit/ui/skeleton';
-import { useSupabase } from '@kit/supabase/hooks/use-supabase';
-import { toast } from 'sonner';
+import { useTypedSupabase } from '~/lib/supabase/use-supabase';
+import { toast } from '@kit/ui/sonner';
 
-import type { AgentTemplate, TemplateCategory } from '@/lib/agents/types';
+import type { AgentTemplate, TemplateCategory } from '~/lib/agents/types';
 
 interface TemplatesContainerProps {
   accountSlug: string;
@@ -77,7 +77,7 @@ const difficultyLabels: Record<string, { label: string; color: string }> = {
 };
 
 export function TemplatesContainer({ accountSlug }: TemplatesContainerProps) {
-  const supabase = useSupabase();
+  const supabase = useTypedSupabase();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<TemplateCategory | 'all'>('all');
@@ -112,6 +112,7 @@ export function TemplatesContainer({ accountSlug }: TemplatesContainerProps) {
       if (!account) throw new Error('Account not found');
 
       // Create agent from template
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: agent, error } = await supabase
         .from('agents')
         .insert({
@@ -120,10 +121,10 @@ export function TemplatesContainer({ accountSlug }: TemplatesContainerProps) {
           description: template.description,
           icon: template.icon,
           color: template.color,
-          status: 'draft',
+          status: 'draft' as const,
           template_id: template.id,
-          workflow: template.workflow,
-          config: template.config,
+          workflow: template.workflow as any,
+          config: template.config as any,
           system_prompt: template.systemPrompt,
         })
         .select()

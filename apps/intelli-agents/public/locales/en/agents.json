@@ -1,0 +1,128 @@
+{
+  "list": {
+    "pageTitle": "My Agents",
+    "pageDescription": "Manage your AI agents and automations",
+    "createAgent": "New Agent",
+    "searchPlaceholder": "Search agents...",
+    "noAgents": "No agents yet",
+    "noAgentsDescription": "Get started by creating your first agent or choosing a template.",
+    "viewTemplates": "View Templates"
+  },
+  "detail": {
+    "pageTitle": "Agent Details",
+    "runAgent": "Run Agent",
+    "editAgent": "Edit",
+    "deleteAgent": "Delete",
+    "duplicateAgent": "Duplicate",
+    "pauseAgent": "Pause",
+    "activateAgent": "Activate",
+    "backToAgents": "Back to agents",
+    "stats": {
+      "totalExecutions": "Total Executions",
+      "successfulExecutions": "Successful",
+      "failedExecutions": "Failed",
+      "lastExecution": "Last Execution"
+    },
+    "tabs": {
+      "executions": "Execution History",
+      "config": "Configuration",
+      "triggers": "Triggers"
+    }
+  },
+  "builder": {
+    "pageTitle": "Agent Builder",
+    "save": "Save",
+    "test": "Test",
+    "settings": "Settings",
+    "unsavedChanges": "Unsaved changes",
+    "addNode": "Add Node",
+    "hideNodes": "Hide Nodes"
+  },
+  "templates": {
+    "pageTitle": "Agent Templates",
+    "pageDescription": "Choose a template to quickly create a new agent",
+    "featured": "Featured Templates",
+    "all": "All Templates",
+    "useTemplate": "Use",
+    "noTemplates": "No templates found",
+    "noTemplatesDescription": "Try adjusting your search or filter",
+    "categories": {
+      "email": "Email",
+      "customer_support": "Customer Support",
+      "sales": "Sales",
+      "data_entry": "Data Entry",
+      "social_media": "Social Media",
+      "finance": "Finance",
+      "hr": "HR",
+      "custom": "Custom"
+    },
+    "difficulty": {
+      "beginner": "Easy",
+      "intermediate": "Medium",
+      "advanced": "Advanced"
+    }
+  },
+  "integrations": {
+    "pageTitle": "Integrations",
+    "pageDescription": "Connect your favorite services to automate your workflow",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "connected": "Connected",
+    "notConnected": "Not connected",
+    "settings": "Settings",
+    "categories": {
+      "accounting": "Accounting",
+      "email": "Email",
+      "communication": "Communication",
+      "crm": "CRM",
+      "payment": "Payment"
+    }
+  },
+  "executions": {
+    "title": "Execution History",
+    "description": "Recent executions of this agent",
+    "noExecutions": "No executions yet",
+    "noExecutionsDescription": "Run the agent to see execution history here.",
+    "status": {
+      "pending": "Pending",
+      "running": "Running",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "timeout": "Timeout"
+    }
+  },
+  "status": {
+    "draft": "Draft",
+    "active": "Active",
+    "paused": "Paused",
+    "error": "Error",
+    "archived": "Archived"
+  },
+  "triggers": {
+    "manual": "Manual",
+    "email_received": "Email Received",
+    "webhook": "Webhook",
+    "schedule": "Schedule",
+    "form_submission": "Form Submission",
+    "chat_message": "Chat Message",
+    "crm_event": "CRM Event",
+    "payment_received": "Payment Received"
+  },
+  "actions": {
+    "send_email": "Send Email",
+    "send_sms": "Send SMS",
+    "slack_message": "Slack Message",
+    "create_contact": "Create Contact",
+    "update_contact": "Update Contact",
+    "create_task": "Create Task",
+    "ai_classify": "AI Classification",
+    "ai_respond": "AI Response",
+    "ai_extract": "AI Extraction",
+    "ai_summarize": "AI Summary",
+    "condition": "Condition",
+    "delay": "Delay",
+    "webhook_call": "HTTP Request",
+    "set_variable": "Set Variable"
+  }
+}

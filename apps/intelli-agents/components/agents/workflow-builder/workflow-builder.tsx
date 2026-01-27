@@ -20,7 +20,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
-import type { Workflow, WorkflowNode, WorkflowEdge, WorkflowNodeType } from '@/lib/agents/types';
+import type { Workflow, WorkflowNode, WorkflowEdge, WorkflowNodeType } from '~/lib/agents/types';
 import { TriggerNode } from './nodes/trigger-node';
 import { ActionNode } from './nodes/action-node';
 import { ConditionNode } from './nodes/condition-node';
@@ -113,8 +113,8 @@ function WorkflowBuilderInner({
           type: node.type as WorkflowNodeType,
           position: node.position,
           data: node.data,
-          width: node.width,
-          height: node.height,
+          width: node.width ?? undefined,
+          height: node.height ?? undefined,
         })),
         edges: newEdges.map((edge): WorkflowEdge => ({
           id: edge.id,

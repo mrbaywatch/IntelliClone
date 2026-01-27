@@ -14,7 +14,7 @@ import { Skeleton } from '@kit/ui/skeleton';
 import { Button } from '@kit/ui/button';
 import { ScrollArea } from '@kit/ui/scroll-area';
 
-import type { AgentExecution, ExecutionStatus } from '@/lib/agents/types';
+import type { AgentExecution, ExecutionStatus } from '~/lib/agents/types';
 
 interface ExecutionsListProps {
   executions: AgentExecution[];

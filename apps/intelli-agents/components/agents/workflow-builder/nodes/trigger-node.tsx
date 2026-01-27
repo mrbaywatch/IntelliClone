@@ -13,7 +13,7 @@ import {
   CreditCard,
   MessageCircle,
 } from 'lucide-react';
-import type { WorkflowNodeData, TriggerType } from '@/lib/agents/types';
+import type { WorkflowNodeData, TriggerType } from '~/lib/agents/types';
 
 // Icon mapping for trigger types
 const triggerIcons: Record<TriggerType, React.ComponentType<{ className?: string }>> = {
