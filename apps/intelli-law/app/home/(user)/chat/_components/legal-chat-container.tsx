@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useRef, useState, useEffect } from 'react';
-import { useChat } from '@ai-sdk/react';
 import { Send, Loader2, User, Bot, BookOpen, ExternalLink } from 'lucide-react';
 
 import { Button } from '@kit/ui/button';
@@ -16,6 +15,12 @@ interface LegalChatContainerProps {
   documentContext?: string;
 }
 
+interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 export function LegalChatContainer({ 
   accountId, 
   sessionId,
@@ -23,34 +28,15 @@ export function LegalChatContainer({
 }: LegalChatContainerProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
-    api: '/api/legal-chat',
-    body: {
-      accountId,
-      sessionId,
-      documentContext,
-    },
-    initialMessages: [],
-  });
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  // Handle keyboard submit
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        if (input.trim() && !isLoading) {
-          handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>);
-        }
-      }
-    },
-    [input, isLoading, handleSubmit]
-  );
 
   // Auto-resize textarea
   useEffect(() => {
@@ -59,6 +45,101 @@ export function LegalChatContainer({
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
     }
   }, [input]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: crypto.randomUUID(),
+      role: 'user',
+      content: input.trim(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/legal-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          accountId,
+          sessionId,
+          documentContext,
+          messages: [...messages, userMessage].map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get response');
+      }
+
+      // Handle streaming response
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let assistantContent = '';
+      const assistantId = crypto.randomUUID();
+
+      // Add placeholder for assistant message
+      setMessages((prev) => [...prev, { id: assistantId, role: 'assistant', content: '' }]);
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          // Parse SSE data
+          const lines = chunk.split('\n');
+          for (const line of lines) {
+            if (line.startsWith('0:')) {
+              // Text content
+              try {
+                const text = JSON.parse(line.slice(2));
+                assistantContent += text;
+                setMessages((prev) => 
+                  prev.map((m) => 
+                    m.id === assistantId ? { ...m, content: assistantContent } : m
+                  )
+                );
+              } catch {
+                // Not JSON, just text
+                const text = line.slice(2).replace(/^"|"$/g, '');
+                assistantContent += text;
+                setMessages((prev) => 
+                  prev.map((m) => 
+                    m.id === assistantId ? { ...m, content: assistantContent } : m
+                  )
+                );
+              }
+            }
+          }
+        }
+      }
+    } catch (err) {
+      setError('Beklager, det oppstod en feil. Vennligst prøv igjen.');
+      console.error('Chat error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle keyboard submit
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit(e as unknown as React.FormEvent);
+      }
+    },
+    [input, isLoading, messages]
+  );
 
   return (
     <div className="flex h-full flex-col">
@@ -79,7 +160,7 @@ export function LegalChatContainer({
           <MessageBubble key={message.id} message={message} />
         ))}
 
-        {isLoading && (
+        {isLoading && messages[messages.length - 1]?.role === 'user' && (
           <div className="flex items-start gap-3">
             <Avatar className="h-8 w-8 bg-primary">
               <AvatarFallback className="bg-primary text-primary-foreground">
@@ -95,7 +176,7 @@ export function LegalChatContainer({
 
         {error && (
           <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-4 text-destructive text-sm">
-            Beklager, det oppstod en feil. Vennligst prøv igjen.
+            {error}
           </div>
         )}
 
@@ -108,7 +189,7 @@ export function LegalChatContainer({
           <Textarea
             ref={textareaRef}
             value={input}
-            onChange={handleInputChange}
+            onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Skriv ditt juridiske spørsmål her..."
             className="min-h-[44px] max-h-[200px] resize-none"
@@ -132,11 +213,7 @@ export function LegalChatContainer({
 }
 
 interface MessageBubbleProps {
-  message: {
-    id: string;
-    role: 'user' | 'assistant' | 'system';
-    content: string;
-  };
+  message: Message;
 }
 
 function MessageBubble({ message }: MessageBubbleProps) {
@@ -226,7 +303,7 @@ function MessageContent({ content }: { content: string }) {
         if (numberedMatch) {
           return (
             <li key={index} className="ml-4 list-decimal">
-              {formatInlineText(numberedMatch[2])}
+              {formatInlineText(numberedMatch[2] || '')}
             </li>
           );
         }

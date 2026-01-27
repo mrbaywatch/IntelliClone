@@ -64,7 +64,7 @@ export function ContractUploadZone({ accountId }: ContractUploadZoneProps) {
         .single();
 
       if (docError) throw docError;
-      const docData = doc as { id: string };
+      const docData = doc as unknown as { id: string };
       setProgress(60);
 
       setUploadState('analyzing');

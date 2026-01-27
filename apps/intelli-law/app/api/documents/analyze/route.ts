@@ -63,8 +63,9 @@ export async function POST(request: NextRequest) {
     // Extract text from PDF
     let documentText: string;
     try {
-      const buffer = Buffer.from(await fileData.arrayBuffer());
-      documentText = await parsePdf(buffer);
+      const arrayBuffer = await fileData.arrayBuffer();
+      const pdfResult = await parsePdf(arrayBuffer);
+      documentText = pdfResult.text.join('\n\n');
     } catch (parseError) {
       logger.error({ error: parseError }, 'Failed to parse PDF');
       return new Response('Failed to parse PDF', { status: 500 });
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
 
     // Update document with extracted content
     await adminClient
-      .from('documents')
+      .from('documents' as any)
       .update({ content: documentText })
       .eq('id', documentId);
 
