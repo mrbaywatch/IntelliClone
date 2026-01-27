@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Plus, MessageSquare, Menu, X } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import Image from 'next/image';
+import { Send, User, Plus, MessageSquare, Menu, X, Trash2 } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -15,6 +16,13 @@ interface ChatSession {
   title: string;
   messages: Message[];
   createdAt: Date;
+}
+
+interface ContextMenu {
+  visible: boolean;
+  x: number;
+  y: number;
+  sessionId: string | null;
 }
 
 const createInitialMessage = (): Message => ({
@@ -37,7 +45,14 @@ export default function ChatDashboard() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [contextMenu, setContextMenu] = useState<ContextMenu>({
+    visible: false,
+    x: 0,
+    y: 0,
+    sessionId: null,
+  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const contextMenuRef = useRef<HTMLDivElement>(null);
 
   const activeSession = sessions.find(s => s.id === activeSessionId) || sessions[0];
   const messages = activeSession.messages;
@@ -60,6 +75,69 @@ export default function ChatDashboard() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Close context menu on click outside or Escape key
+  const closeContextMenu = useCallback(() => {
+    setContextMenu(prev => ({ ...prev, visible: false }));
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) {
+        closeContextMenu();
+      }
+    };
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeContextMenu();
+      }
+    };
+
+    if (contextMenu.visible) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [contextMenu.visible, closeContextMenu]);
+
+  const handleContextMenu = (e: React.MouseEvent, sessionId: string) => {
+    e.preventDefault();
+    setContextMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      sessionId,
+    });
+  };
+
+  const handleDeleteSession = (sessionId: string) => {
+    closeContextMenu();
+    
+    // If this is the only session, create a new one first
+    if (sessions.length === 1) {
+      const newSession = createNewSession();
+      setSessions([newSession]);
+      setActiveSessionId(newSession.id);
+      return;
+    }
+
+    // Find the index of the session to delete
+    const sessionIndex = sessions.findIndex(s => s.id === sessionId);
+    const newSessions = sessions.filter(s => s.id !== sessionId);
+    setSessions(newSessions);
+
+    // If deleting the active session, switch to another
+    if (sessionId === activeSessionId) {
+      // Prefer the next session, or the previous if at the end
+      const newActiveIndex = Math.min(sessionIndex, newSessions.length - 1);
+      setActiveSessionId(newSessions[newActiveIndex].id);
+    }
+  };
 
   const updateSessionMessages = (sessionId: string, newMessages: Message[]) => {
     setSessions(prev => prev.map(session => {
@@ -197,6 +275,7 @@ export default function ChatDashboard() {
                 <button
                   key={session.id}
                   onClick={() => handleSelectSession(session.id)}
+                  onContextMenu={(e) => handleContextMenu(e, session.id)}
                   className={`group flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition-all ${
                     session.id === activeSessionId
                       ? 'bg-white shadow-sm'
@@ -357,6 +436,26 @@ export default function ChatDashboard() {
           </div>
         </div>
       </main>
+
+      {/* Context Menu */}
+      {contextMenu.visible && contextMenu.sessionId && (
+        <div
+          ref={contextMenuRef}
+          className="fixed z-[100] min-w-[140px] overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-lg"
+          style={{
+            left: contextMenu.x,
+            top: contextMenu.y,
+          }}
+        >
+          <button
+            onClick={() => handleDeleteSession(contextMenu.sessionId!)}
+            className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete
+          </button>
+        </div>
+      )}
     </div>
   );
 }
