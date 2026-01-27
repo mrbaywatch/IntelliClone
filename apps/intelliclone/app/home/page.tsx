@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { Send, User, Plus, MessageSquare, Menu, X, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+import { Send, User, Plus, MessageSquare, Menu, X, Trash2, Brain } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -266,6 +267,17 @@ export default function ChatDashboard() {
               <Plus className="h-4 w-4" />
               New Chat
             </button>
+          </div>
+
+          {/* Memory Link */}
+          <div className="px-3">
+            <Link
+              href="/home/memories"
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-600 transition-all hover:bg-white/60"
+            >
+              <Brain className="h-4 w-4" style={{ color: '#D4A84B' }} />
+              Memory
+            </Link>
           </div>
 
           {/* Session List */}
