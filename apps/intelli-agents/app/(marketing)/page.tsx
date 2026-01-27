@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 
 import {
@@ -65,18 +64,7 @@ function Home() {
             </span>
           }
           cta={<MainCallToActionButton />}
-          image={
-            <Image
-              priority
-              className={
-                'dark:border-primary/10 w-full rounded-lg border border-gray-200 shadow-2xl'
-              }
-              width={3558}
-              height={2222}
-              src={`/images/dashboard.webp`}
-              alt={`Intelli-Agents Dashboard`}
-            />
-          }
+          image={<HeroVisual />}
         />
       </div>
 
@@ -234,13 +222,7 @@ function Home() {
           heading="Bygg én gang. Kjør automatisk for alltid."
           description="Med Intelli-Agents definerer du arbeidsflyten visuelt, og AI-agenten tar seg av resten. Perfekt for norske bedrifter som vil effektivisere uten å miste kontrollen."
         >
-          <Image
-            className="rounded-md shadow-xl"
-            src={'/images/dashboard.webp'}
-            alt="Agent Builder"
-            width={1000}
-            height={1000}
-          />
+          <WorkflowDiagram />
         </EcosystemShowcase>
       </div>
 
@@ -510,5 +492,122 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
       </summary>
       <div className="text-muted-foreground px-4 pb-4">{answer}</div>
     </details>
+  );
+}
+
+function HeroVisual() {
+  return (
+    <div className="relative w-full aspect-[16/10] rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 shadow-2xl overflow-hidden">
+      {/* Floating icons */}
+      <div className="absolute top-8 left-8 p-4 bg-background/80 backdrop-blur-sm rounded-xl border shadow-lg animate-pulse">
+        <BotIcon className="h-8 w-8 text-primary" />
+      </div>
+      <div className="absolute top-12 right-12 p-4 bg-background/80 backdrop-blur-sm rounded-xl border shadow-lg animate-pulse delay-100">
+        <BrainCircuitIcon className="h-8 w-8 text-primary" />
+      </div>
+      <div className="absolute bottom-16 left-16 p-4 bg-background/80 backdrop-blur-sm rounded-xl border shadow-lg animate-pulse delay-200">
+        <WorkflowIcon className="h-8 w-8 text-primary" />
+      </div>
+      <div className="absolute bottom-12 right-20 p-4 bg-background/80 backdrop-blur-sm rounded-xl border shadow-lg animate-pulse delay-300">
+        <ZapIcon className="h-8 w-8 text-primary" />
+      </div>
+      
+      {/* Center visual */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="relative">
+          {/* Connection lines */}
+          <svg className="absolute inset-0 w-64 h-64 -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" className="text-primary/20" strokeWidth="1" strokeDasharray="4 4" />
+            <circle cx="100" cy="100" r="50" fill="none" stroke="currentColor" className="text-primary/30" strokeWidth="1" strokeDasharray="4 4" />
+          </svg>
+          
+          {/* Central hub */}
+          <div className="relative z-10 p-6 bg-primary text-primary-foreground rounded-2xl shadow-xl">
+            <SparklesIcon className="h-12 w-12" />
+          </div>
+        </div>
+      </div>
+      
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-background/50 to-transparent pointer-events-none" />
+    </div>
+  );
+}
+
+function WorkflowDiagram() {
+  return (
+    <div className="w-full max-w-4xl mx-auto p-8 bg-gradient-to-br from-muted/50 to-background rounded-2xl border shadow-xl">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        {/* Trigger */}
+        <div className="flex flex-col items-center gap-2">
+          <div className="p-4 bg-blue-500/10 border-2 border-blue-500/30 rounded-xl">
+            <ZapIcon className="h-8 w-8 text-blue-500" />
+          </div>
+          <span className="text-sm font-medium">Trigger</span>
+          <span className="text-xs text-muted-foreground">E-post, webhook, tid</span>
+        </div>
+        
+        {/* Arrow */}
+        <div className="hidden md:flex items-center">
+          <div className="w-12 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500" />
+          <ArrowRightIcon className="h-5 w-5 text-purple-500 -ml-1" />
+        </div>
+        <div className="md:hidden">
+          <ChevronDown className="h-5 w-5 text-muted-foreground" />
+        </div>
+        
+        {/* AI Agent */}
+        <div className="flex flex-col items-center gap-2">
+          <div className="p-4 bg-purple-500/10 border-2 border-purple-500/30 rounded-xl">
+            <BrainCircuitIcon className="h-8 w-8 text-purple-500" />
+          </div>
+          <span className="text-sm font-medium">AI-agent</span>
+          <span className="text-xs text-muted-foreground">Analyserer og beslutter</span>
+        </div>
+        
+        {/* Arrow */}
+        <div className="hidden md:flex items-center">
+          <div className="w-12 h-0.5 bg-gradient-to-r from-purple-500 to-green-500" />
+          <ArrowRightIcon className="h-5 w-5 text-green-500 -ml-1" />
+        </div>
+        <div className="md:hidden">
+          <ChevronDown className="h-5 w-5 text-muted-foreground" />
+        </div>
+        
+        {/* Actions */}
+        <div className="flex flex-col items-center gap-2">
+          <div className="p-4 bg-green-500/10 border-2 border-green-500/30 rounded-xl">
+            <PlugZapIcon className="h-8 w-8 text-green-500" />
+          </div>
+          <span className="text-sm font-medium">Handlinger</span>
+          <span className="text-xs text-muted-foreground">Slack, e-post, CRM</span>
+        </div>
+        
+        {/* Arrow */}
+        <div className="hidden md:flex items-center">
+          <div className="w-12 h-0.5 bg-gradient-to-r from-green-500 to-orange-500" />
+          <ArrowRightIcon className="h-5 w-5 text-orange-500 -ml-1" />
+        </div>
+        <div className="md:hidden">
+          <ChevronDown className="h-5 w-5 text-muted-foreground" />
+        </div>
+        
+        {/* Result */}
+        <div className="flex flex-col items-center gap-2">
+          <div className="p-4 bg-orange-500/10 border-2 border-orange-500/30 rounded-xl">
+            <RocketIcon className="h-8 w-8 text-orange-500" />
+          </div>
+          <span className="text-sm font-medium">Resultat</span>
+          <span className="text-xs text-muted-foreground">Automatisk levert</span>
+        </div>
+      </div>
+      
+      {/* Bottom tagline */}
+      <div className="mt-8 text-center">
+        <p className="text-sm text-muted-foreground">
+          Ingen koding • Kjører 24/7 • Full kontroll
+        </p>
+      </div>
+    </div>
   );
 }
