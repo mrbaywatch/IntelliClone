@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 
 import {
@@ -63,14 +62,43 @@ function Home() {
           cta={<MainCallToActionButton />}
           image={
             <div className="relative">
-              <Image
-                priority
-                className="dark:border-primary/10 rounded-2xl border border-gray-200 shadow-2xl"
-                width={3558}
-                height={2222}
-                src={`/images/dashboard.webp`}
-                alt={`IntelliClone Dashboard - AI chatbot for norske bedrifter`}
-              />
+              {/* Abstract gradient background with floating elements */}
+              <div className="relative w-full aspect-[16/10] rounded-2xl border border-gray-200 dark:border-primary/10 shadow-2xl overflow-hidden bg-gradient-to-br from-primary/5 via-background to-primary/10">
+                {/* Animated gradient orbs */}
+                <div className="absolute top-10 left-10 w-32 h-32 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+                <div className="absolute bottom-20 right-10 w-40 h-40 bg-primary/15 rounded-full blur-3xl animate-pulse delay-1000" />
+                <div className="absolute top-1/2 left-1/3 w-24 h-24 bg-primary/25 rounded-full blur-2xl animate-pulse delay-500" />
+                
+                {/* Floating UI elements */}
+                <div className="absolute inset-0 p-8 flex flex-col justify-center items-center gap-4">
+                  {/* Chat bubble mockup */}
+                  <div className="flex flex-col gap-3 w-full max-w-md">
+                    <div className="self-end bg-primary text-primary-foreground px-4 py-2 rounded-2xl rounded-br-sm text-sm shadow-lg">
+                      Hei! Hvordan kan jeg hjelpe deg i dag?
+                    </div>
+                    <div className="self-start bg-card border px-4 py-2 rounded-2xl rounded-bl-sm text-sm shadow-lg">
+                      Jeg lurer på statusen på ordren min
+                    </div>
+                    <div className="self-end bg-primary text-primary-foreground px-4 py-2 rounded-2xl rounded-br-sm text-sm shadow-lg flex items-center gap-2">
+                      <Brain className="h-4 w-4" />
+                      Jeg ser du er Ole fra Bergen! Din ordre #4521 sendes i morgen.
+                    </div>
+                  </div>
+                  
+                  {/* Memory indicator */}
+                  <div className="absolute bottom-8 left-8 bg-card/90 backdrop-blur border rounded-lg px-3 py-2 shadow-lg flex items-center gap-2 text-xs">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                    <span className="text-muted-foreground">AI husker 127 kunder</span>
+                  </div>
+                </div>
+                
+                {/* Grid pattern overlay */}
+                <div className="absolute inset-0 opacity-[0.03]" style={{
+                  backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)',
+                  backgroundSize: '24px 24px'
+                }} />
+              </div>
+              
               {/* Floating stats */}
               <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex gap-4">
                 <div className="bg-background/95 backdrop-blur border rounded-lg px-4 py-2 shadow-lg">
