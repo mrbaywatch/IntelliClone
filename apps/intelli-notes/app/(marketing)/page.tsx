@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 import {
@@ -68,35 +69,14 @@ function Home() {
           }
           cta={<MainCallToActionButton />}
           image={
-            <div className="dark:border-primary/10 w-full rounded-2xl border border-gray-200 bg-gradient-to-br from-primary/5 via-background to-primary/10 p-8 shadow-2xl">
-              <div className="flex flex-col items-center justify-center space-y-6 py-12">
-                {/* Audio wave visualization */}
-                <div className="flex items-end justify-center gap-1">
-                  {[40, 70, 55, 85, 60, 90, 50, 75, 45, 80, 65, 95, 55, 70, 40].map((height, i) => (
-                    <div
-                      key={i}
-                      className="bg-primary/60 w-2 rounded-full transition-all duration-300"
-                      style={{
-                        height: `${height}px`,
-                        animationDelay: `${i * 100}ms`,
-                      }}
-                    />
-                  ))}
-                </div>
-                {/* Transcription preview */}
-                <div className="w-full max-w-md space-y-3 rounded-xl bg-background/80 p-6 shadow-lg backdrop-blur">
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
-                    <span className="text-muted-foreground text-sm">Transkriberer...</span>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="bg-muted h-3 w-full rounded" />
-                    <div className="bg-muted h-3 w-4/5 rounded" />
-                    <div className="bg-muted h-3 w-3/4 rounded" />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <Image
+              priority
+              className="rounded-2xl border border-gray-200 shadow-2xl dark:border-primary/10"
+              width={1920}
+              height={1080}
+              src="/images/dashboard-hero.png"
+              alt="Intelli-Notes Dashboard"
+            />
           }
         />
       </div>

@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 import {
@@ -56,6 +57,16 @@ function Home() {
             </span>
           }
           cta={<MainCallToActionButton />}
+          image={
+            <Image
+              priority
+              className="rounded-2xl border border-gray-200 shadow-2xl dark:border-primary/10"
+              width={1920}
+              height={1080}
+              src="/images/dashboard-hero.png"
+              alt="Intelli-Law Dashboard"
+            />
+          }
         />
       </div>
 

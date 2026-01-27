@@ -52,8 +52,8 @@ enable_manual_linking = true
 
 # Enable TOTP MFA
 [auth.mfa.totp]
-verify_enabled = true
-enroll_enabled = true
+verify_enabled = false
+enroll_enabled = false
 
 [auth.email]
 # Allow/disallow new user signups via email to your project.
