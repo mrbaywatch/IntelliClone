@@ -1,0 +1,3 @@
+{"level":30,"time":"2026-01-27T21:09:04.050Z","pid":31945,"hostname":"Johanness-Mac-mini.local","msg":"[MCP] Server started: http://localhost:3000"}
+{"level":20,"time":"2026-01-27T21:09:04.051Z","pid":31945,"hostname":"Johanness-Mac-mini.local","msg":"Using default Claude Code adapter"}
+{"level":20,"time":"2026-01-27T21:09:04.052Z","pid":31945,"hostname":"Johanness-Mac-mini.local","msg":"No .clawd/plugins directory found, skipping plugin loading"}
