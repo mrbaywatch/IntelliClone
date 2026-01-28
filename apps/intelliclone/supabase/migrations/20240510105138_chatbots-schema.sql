@@ -1,4 +1,6 @@
-create extension vector with schema extensions;
+-- Set search path to include extensions
+SET search_path TO public, extensions;
+create extension if not exists vector with schema extensions;
 
 -- public.jobs_status
 create type public.jobs_status as ENUM (
