@@ -339,7 +339,7 @@ export default function LandingPage() {
           </div>
 
           {/* Hero Device Mockup */}
-          <div className="relative flex justify-center items-center mt-8">
+          <div className="relative flex justify-center items-center mt-20">
             <div className="float">
               <svg className="w-full max-w-3xl soft-shadow rounded-2xl" viewBox="0 0 800 500" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="50" y="30" width="700" height="420" rx="20" fill="#f5f5f7"/>
@@ -362,7 +362,7 @@ export default function LandingPage() {
                 <ellipse cx="400" cy="460" rx="50" ry="8" fill="#d1d5db"/>
               </svg>
             </div>
-            <div className="absolute -right-4 md:right-12 top-[55%] -translate-y-1/2 float-delayed hidden md:block">
+            <div className="absolute -right-4 md:right-12 top-[60%] -translate-y-1/2 float-delayed hidden md:block">
               <svg className="w-48 soft-shadow rounded-3xl" viewBox="0 0 180 360" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect width="180" height="360" rx="30" fill="#1a1a1a"/>
                 <rect x="8" y="8" width="164" height="344" rx="24" fill="white"/>
