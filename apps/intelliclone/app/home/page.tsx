@@ -254,29 +254,24 @@ export default function ChatDashboard() {
   };
 
   return (
-    <div className="flex h-screen bg-[#FAFAFA]">
+    <div className="flex h-screen bg-[#FAFAFA] dark:bg-gray-900">
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-black/20 md:hidden"
+          className="fixed inset-0 z-40 bg-black/20 dark:bg-black/40 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar - Frosted Glass */}
       <aside 
-        className={`fixed left-0 top-0 z-50 h-screen w-[280px] transform border-r border-gray-100/50 transition-transform duration-300 ease-in-out md:relative md:z-auto md:translate-x-0 ${
+        className={`fixed left-0 top-0 z-50 h-screen w-[280px] transform border-r border-gray-100/50 bg-white/85 backdrop-blur-xl transition-transform duration-300 ease-in-out dark:border-gray-800/50 dark:bg-gray-900/85 md:relative md:z-auto md:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
-        style={{
-          background: 'rgba(255, 255, 255, 0.85)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-        }}
       >
         <div className="flex h-full flex-col">
           {/* Sidebar Header with Logo */}
-          <div className="border-b border-gray-100/50 px-5 py-5">
+          <div className="border-b border-gray-100/50 px-5 py-5 dark:border-gray-800/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {/* Logo Icon */}
@@ -286,13 +281,13 @@ export default function ChatDashboard() {
                 >
                   <ChatIcon className="h-4 w-4 text-white" />
                 </div>
-                <span className="font-semibold text-gray-800">
+                <span className="font-semibold text-gray-800 dark:text-gray-100">
                   Intelli<span style={{ color: '#D4A84B' }}>Clone</span>
                 </span>
               </div>
               <button
                 onClick={() => setSidebarOpen(false)}
-                className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600 md:hidden"
+                className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-300 md:hidden"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -303,7 +298,7 @@ export default function ChatDashboard() {
           <div className="p-4">
             <button
               onClick={handleNewChat}
-              className="flex w-full items-center justify-center gap-2.5 rounded-2xl border border-gray-200/80 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-[0_4px_40px_-8px_rgba(0,0,0,0.08)]"
+              className="flex w-full items-center justify-center gap-2.5 rounded-2xl border border-gray-200/80 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-[0_4px_40px_-8px_rgba(0,0,0,0.08)] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:shadow-[0_2px_20px_-4px_rgba(0,0,0,0.2)] dark:hover:border-gray-600"
             >
               <Plus className="h-4 w-4" />
               New Chat
@@ -314,7 +309,7 @@ export default function ChatDashboard() {
           <div className="mb-2 px-4">
             <Link
               href="/home/memories"
-              className="flex items-center gap-3 rounded-2xl px-4 py-3 text-gray-600 transition-all hover:bg-white/60"
+              className="flex items-center gap-3 rounded-2xl px-4 py-3 text-gray-600 transition-all hover:bg-white/60 dark:text-gray-300 dark:hover:bg-gray-800/60"
             >
               <BrainIcon className="h-5 w-5" style={{ color: '#D4A84B' }} />
               <span className="text-sm font-medium">Memory</span>
@@ -323,7 +318,7 @@ export default function ChatDashboard() {
 
           {/* Sessions Label */}
           <div className="px-6 py-2">
-            <span className="text-xs font-medium uppercase tracking-wide text-gray-400">Recent Chats</span>
+            <span className="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">Recent Chats</span>
           </div>
 
           {/* Session List */}
@@ -337,8 +332,8 @@ export default function ChatDashboard() {
                   onContextMenu={(e) => handleContextMenu(e, session.id)}
                   className={`relative flex w-full items-start gap-3 rounded-2xl px-4 py-3.5 text-left transition-all ${
                     isActive
-                      ? 'bg-white shadow-[0_2px_20px_-4px_rgba(0,0,0,0.06)]'
-                      : 'hover:bg-white/70'
+                      ? 'bg-white shadow-[0_2px_20px_-4px_rgba(0,0,0,0.06)] dark:bg-gray-800 dark:shadow-[0_2px_20px_-4px_rgba(0,0,0,0.2)]'
+                      : 'hover:bg-white/70 dark:hover:bg-gray-800/70'
                   }`}
                 >
                   {/* Active indicator */}
@@ -353,10 +348,10 @@ export default function ChatDashboard() {
                     style={{ color: isActive ? '#D4A84B' : '#9CA3AF' }}
                   />
                   <div className="min-w-0 flex-1">
-                    <p className={`truncate text-sm font-medium ${isActive ? 'text-gray-900' : 'text-gray-700'}`}>
+                    <p className={`truncate text-sm font-medium ${isActive ? 'text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'}`}>
                       {session.title}
                     </p>
-                    <p className="mt-0.5 truncate text-xs text-gray-400">
+                    <p className="mt-0.5 truncate text-xs text-gray-400 dark:text-gray-500">
                       {getSessionPreview(session)}
                     </p>
                   </div>
@@ -366,7 +361,7 @@ export default function ChatDashboard() {
           </div>
 
           {/* User Profile Section - Fixed to bottom */}
-          <div className="mt-auto border-t border-gray-100/50 p-4">
+          <div className="mt-auto border-t border-gray-100/50 p-4 dark:border-gray-800/50">
             <ProfileAccountDropdownContainer showProfileName={true} />
           </div>
         </div>
@@ -377,19 +372,14 @@ export default function ChatDashboard() {
         
         {/* Mobile Header (Fixed) */}
         <div 
-          className="fixed left-0 right-0 top-0 z-40 border-b border-gray-100/50 md:hidden"
-          style={{
-            background: 'rgba(255, 255, 255, 0.85)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-          }}
+          className="fixed left-0 right-0 top-0 z-40 border-b border-gray-100/50 bg-white/85 backdrop-blur-xl dark:border-gray-800/50 dark:bg-gray-900/85 md:hidden"
         >
           <div className="flex items-center justify-between px-4 py-3">
             <button 
               onClick={() => setSidebarOpen(true)}
-              className="rounded-xl p-2 transition-colors hover:bg-gray-100/50"
+              className="rounded-xl p-2 transition-colors hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
             >
-              <Menu className="h-5 w-5 text-gray-600" />
+              <Menu className="h-5 w-5 text-gray-600 dark:text-gray-300" />
             </button>
             <div className="flex items-center gap-2">
               <Image
@@ -407,14 +397,10 @@ export default function ChatDashboard() {
 
         {/* Floating Chat Card */}
         <div 
-          className="mt-16 flex h-[calc(100vh-6rem)] w-full max-w-[850px] flex-col overflow-hidden bg-white md:mt-0 md:h-[720px]"
-          style={{
-            borderRadius: '2rem',
-            boxShadow: '0 8px 60px -12px rgba(0, 0, 0, 0.1)',
-          }}
+          className="mt-16 flex h-[calc(100vh-6rem)] w-full max-w-[850px] flex-col overflow-hidden rounded-[2rem] bg-white shadow-[0_8px_60px_-12px_rgba(0,0,0,0.1)] dark:bg-gray-800 dark:shadow-[0_8px_60px_-12px_rgba(0,0,0,0.3)] md:mt-0 md:h-[720px]"
         >
           {/* Chat Header */}
-          <div className="flex items-center justify-between border-b border-gray-100/50 px-6 py-5 md:px-8">
+          <div className="flex items-center justify-between border-b border-gray-100/50 px-6 py-5 dark:border-gray-700/50 md:px-8">
             <div className="flex items-center gap-3.5">
               <div className="relative">
                 <Image
@@ -425,11 +411,11 @@ export default function ChatDashboard() {
                   className="h-11 w-11 rounded-full object-cover shadow-sm"
                 />
                 {/* Online indicator */}
-                <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-emerald-400" />
+                <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-emerald-400 dark:border-gray-800" />
               </div>
               <div>
                 <h1 className="font-semibold" style={{ color: '#D4A84B' }}>Erik</h1>
-                <p className="text-xs text-gray-400">Your personal assistant</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">Your personal assistant</p>
               </div>
             </div>
           </div>
@@ -446,8 +432,8 @@ export default function ChatDashboard() {
                 >
                   {/* Avatar */}
                   {message.role === 'user' ? (
-                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-100">
-                      <User className="h-4 w-4 text-gray-500" />
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+                      <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                     </div>
                   ) : (
                     <Image
@@ -463,13 +449,9 @@ export default function ChatDashboard() {
                   <div
                     className={`max-w-[75%] px-5 py-3.5 ${
                       message.role === 'user'
-                        ? 'rounded-3xl rounded-br-lg bg-gray-100 text-gray-800'
-                        : 'rounded-3xl rounded-bl-lg border text-gray-800'
+                        ? 'rounded-3xl rounded-br-lg bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100'
+                        : 'rounded-3xl rounded-bl-lg border border-[#D4A84B]/15 bg-gradient-to-br from-[#D4A84B]/[0.06] to-[#D4A84B]/[0.03] text-gray-800 dark:border-[#D4A84B]/25 dark:from-[#D4A84B]/[0.1] dark:to-[#D4A84B]/[0.05] dark:text-gray-100'
                     }`}
-                    style={message.role === 'assistant' ? { 
-                      background: 'linear-gradient(135deg, rgba(212, 168, 75, 0.06) 0%, rgba(212, 168, 75, 0.03) 100%)',
-                      borderColor: 'rgba(212, 168, 75, 0.15)',
-                    } : {}}
                   >
                     <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{message.content}</p>
                   </div>
@@ -487,11 +469,7 @@ export default function ChatDashboard() {
                     className="h-8 w-8 flex-shrink-0 rounded-full object-cover shadow-sm"
                   />
                   <div 
-                    className="rounded-3xl rounded-bl-lg border px-5 py-4"
-                    style={{ 
-                      background: 'linear-gradient(135deg, rgba(212, 168, 75, 0.06) 0%, rgba(212, 168, 75, 0.03) 100%)',
-                      borderColor: 'rgba(212, 168, 75, 0.15)',
-                    }}
+                    className="rounded-3xl rounded-bl-lg border border-[#D4A84B]/15 bg-gradient-to-br from-[#D4A84B]/[0.06] to-[#D4A84B]/[0.03] px-5 py-4 dark:border-[#D4A84B]/25 dark:from-[#D4A84B]/[0.1] dark:to-[#D4A84B]/[0.05]"
                   >
                     <div className="flex gap-1.5">
                       <span 
@@ -516,9 +494,9 @@ export default function ChatDashboard() {
           </div>
 
           {/* Input Area */}
-          <div className="border-t border-gray-100/50 bg-gray-50/30 px-6 py-5 md:px-8">
+          <div className="border-t border-gray-100/50 bg-gray-50/30 px-6 py-5 dark:border-gray-700/50 dark:bg-gray-900/30 md:px-8">
             <div 
-              className="flex items-center gap-3 rounded-2xl border border-gray-200/80 bg-white px-5 py-3 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.06)] transition-all focus-within:border-[#D4A84B]/40 focus-within:shadow-[0_4px_40px_-8px_rgba(0,0,0,0.08)] focus-within:ring-2 focus-within:ring-[#D4A84B]/10"
+              className="flex items-center gap-3 rounded-2xl border border-gray-200/80 bg-white px-5 py-3 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.06)] transition-all focus-within:border-[#D4A84B]/40 focus-within:shadow-[0_4px_40px_-8px_rgba(0,0,0,0.08)] focus-within:ring-2 focus-within:ring-[#D4A84B]/10 dark:border-gray-700 dark:bg-gray-800 dark:shadow-[0_2px_20px_-4px_rgba(0,0,0,0.2)] dark:focus-within:border-[#D4A84B]/50"
             >
               <input
                 type="text"
@@ -526,7 +504,7 @@ export default function ChatDashboard() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
                 placeholder="Message Erik..."
-                className="flex-1 bg-transparent text-[15px] text-gray-800 placeholder-gray-400 outline-none"
+                className="flex-1 bg-transparent text-[15px] text-gray-800 placeholder-gray-400 outline-none dark:text-gray-100 dark:placeholder-gray-500"
               />
               <button
                 onClick={handleSend}
@@ -537,7 +515,7 @@ export default function ChatDashboard() {
                 <SendIcon className="h-4 w-4" />
               </button>
             </div>
-            <p className="mt-3 text-center text-xs text-gray-400">
+            <p className="mt-3 text-center text-xs text-gray-400 dark:text-gray-500">
               Erik can make mistakes. Consider checking important information.
             </p>
           </div>
@@ -548,7 +526,7 @@ export default function ChatDashboard() {
       {contextMenu.visible && contextMenu.sessionId && (
         <div
           ref={contextMenuRef}
-          className="fixed z-[100] min-w-[140px] overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-lg"
+          className="fixed z-[100] min-w-[140px] overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
           style={{
             left: contextMenu.x,
             top: contextMenu.y,
@@ -556,7 +534,7 @@ export default function ChatDashboard() {
         >
           <button
             onClick={() => handleDeleteSession(contextMenu.sessionId!)}
-            className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50"
+            className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
           >
             <Trash2 className="h-4 w-4" />
             Delete
