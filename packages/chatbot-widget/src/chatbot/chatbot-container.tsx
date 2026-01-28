@@ -4,7 +4,7 @@ import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, UIMessage } from 'ai';
-import { RefreshCcw, Send, X } from 'lucide-react';
+import { Paperclip, RefreshCcw, Send, X } from 'lucide-react';
 
 import { If } from '@kit/ui/if';
 import { MarkdownRenderer } from '@kit/ui/markdown-renderer';
@@ -50,6 +50,7 @@ export function ChatbotContainer(props: ChatBotProps) {
   const [error, setError] = useState<string | undefined>(undefined);
 
   const [input, setInput] = useState('');
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   const { messages, sendMessage, setMessages, status } = useChat({
     transport: new DefaultChatTransport({
@@ -142,20 +143,93 @@ export function ChatbotContainer(props: ChatBotProps) {
               </div>
             </If>
 
+            {/* Pending files display */}
+            <If condition={pendingFiles.length > 0}>
+              <div className="border-t px-4 py-2 flex flex-wrap gap-2">
+                {pendingFiles.map((file, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-1 bg-muted px-2 py-1 rounded text-xs"
+                  >
+                    <span className="max-w-[150px] truncate">{file.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPendingFiles((files) =>
+                          files.filter((_, i) => i !== index)
+                        );
+                      }}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </If>
+
             <ChatBotInput
               isLoading={isLoading || state.isLoading}
               input={input}
               disabled={state.isDisabled}
               onInputChange={setInput}
-              onSubmit={(content) => {
-                if (content.trim()) {
-                  onLoadingChange(true);
-                  sendMessage({
-                    role: ChatBotMessageRole.User,
-                    parts: [{ type: 'text', text: content }],
-                  });
-                  setInput('');
+              hasPendingFiles={pendingFiles.length > 0}
+              onFileUpload={(files) => {
+                setPendingFiles((prev) => [...prev, ...files]);
+              }}
+              onSubmit={async (content) => {
+                const trimmedContent = content.trim();
+                const hasContent = trimmedContent || pendingFiles.length > 0;
+                
+                if (!hasContent) return;
+
+                onLoadingChange(true);
+                
+                // Process files into message parts
+                const parts: Array<{ type: 'text'; text: string } | { type: 'file'; data: string; mimeType: string }> = [];
+                
+                // Process pending files
+                for (const file of pendingFiles) {
+                  try {
+                    if (file.type.startsWith('image/')) {
+                      // Convert images to base64 data URL
+                      const base64 = await fileToBase64(file);
+                      parts.push({
+                        type: 'file',
+                        data: base64,
+                        mimeType: file.type,
+                      });
+                    } else {
+                      // Read text files as text
+                      const text = await fileToText(file);
+                      parts.push({
+                        type: 'text',
+                        text: `[File: ${file.name}]\n\`\`\`\n${text}\n\`\`\`\n`,
+                      });
+                    }
+                  } catch (err) {
+                    console.error('Error processing file:', file.name, err);
+                  }
                 }
+                
+                // Add the user's message
+                if (trimmedContent) {
+                  parts.push({ type: 'text', text: trimmedContent });
+                }
+
+                // Combine all text parts for now (since the API might not support file parts directly)
+                const textParts = parts
+                  .filter((p) => p.type === 'text')
+                  .map((p) => (p as { type: 'text'; text: string }).text)
+                  .join('\n\n');
+
+                sendMessage({
+                  role: ChatBotMessageRole.User,
+                  parts: [{ type: 'text', text: textParts || 'File attached' }],
+                });
+                
+                setInput('');
+                setPendingFiles([]);
               }}
             />
           </div>
@@ -311,54 +385,123 @@ function ChatBotInput({
   input,
   onInputChange,
   onSubmit,
+  onFileUpload,
+  hasPendingFiles = false,
 }: React.PropsWithChildren<{
   input: string;
   isLoading: boolean;
   disabled: boolean;
   onInputChange: (value: string) => void;
   onSubmit: (content: string) => void;
+  onFileUpload?: (files: File[]) => void;
+  hasPendingFiles?: boolean;
 }>) {
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = useCallback(
-    (e) => {
-      e.preventDefault();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-      if (isLoading || disabled || !input.trim()) {
-        return;
+  // Auto-resize textarea
+  const adjustHeight = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+    }
+  }, []);
+
+  useEffect(() => {
+    adjustHeight();
+  }, [input, adjustHeight]);
+
+  const handleSubmit = useCallback(() => {
+    if (isLoading || disabled) {
+      return;
+    }
+    onSubmit(input);
+    // Reset height after submit
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
+  }, [onSubmit, input, disabled, isLoading]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      // Enter sends, Shift+Enter adds newline
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit();
       }
-
-      onSubmit(input);
+      // Shift+Enter adds newline (default behavior)
     },
-    [onSubmit, input, disabled, isLoading],
+    [handleSubmit],
+  );
+
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(e.target.files || []);
+      if (files.length > 0 && onFileUpload) {
+        onFileUpload(files);
+      }
+      // Reset input so same file can be selected again
+      e.target.value = '';
+    },
+    [onFileUpload],
   );
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className={'relative flex'}>
-        <input
+    <div className={'border-t bg-background'}>
+      <div className={'relative flex items-end'}>
+        {/* File upload button */}
+        {onFileUpload && (
+          <>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              onChange={handleFileChange}
+              className="hidden"
+              accept=".txt,.md,.json,.csv,.pdf,.png,.jpg,.jpeg,.gif,.webp"
+            />
+            <button
+              type="button"
+              disabled={isLoading || disabled}
+              onClick={() => fileInputRef.current?.click()}
+              className={'p-3 bg-transparent hover:bg-muted rounded-lg transition-colors'}
+              title="Attach files"
+            >
+              <Paperclip className={'text-muted-foreground h-5 w-5'} />
+            </button>
+          </>
+        )}
+
+        <textarea
+          ref={textareaRef}
           disabled={isLoading || disabled}
           autoComplete={'off'}
-          required
           value={input}
           onChange={(e) => onInputChange(e.target.value)}
+          onKeyDown={handleKeyDown}
           name={'message'}
+          rows={1}
           className={
-            'text-muted-foreground h-14 p-4' +
-            ' w-full rounded-br-xl rounded-bl-xl outline-none' +
-            ' resize-none border-t text-sm transition-colors' +
-            ' bg-background focus:text-secondary-foreground pr-8'
+            'text-muted-foreground min-h-[56px] max-h-[200px] py-4 px-2' +
+            ' w-full outline-none' +
+            ' resize-none text-sm transition-colors' +
+            ' bg-background focus:text-secondary-foreground'
           }
-          placeholder="Ask our chatbot a question..."
+          placeholder="Type a message... (Shift+Enter for new line)"
         />
 
         <button
-          disabled={isLoading || disabled}
-          type={'submit'}
-          className={'absolute top-4 right-4 bg-transparent'}
+          disabled={isLoading || disabled || (!input.trim() && !hasPendingFiles)}
+          type={'button'}
+          onClick={handleSubmit}
+          className={'p-3 bg-transparent hover:bg-muted rounded-lg transition-colors disabled:opacity-50'}
+          title="Send message (Shift+Enter)"
         >
-          <Send className={'text-muted-foreground h-6'} />
+          <Send className={'text-muted-foreground h-5 w-5'} />
         </button>
       </div>
-    </form>
+    </div>
   );
 }
 
@@ -512,4 +655,23 @@ function ChatbotContentContainer(
       {props.children}
     </div>
   );
+}
+
+// File helper functions
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function fileToText(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsText(file);
+  });
 }

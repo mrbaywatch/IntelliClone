@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 import {
   ChevronsUpDown,
+  Clock,
   Globe,
   Home,
   LogOut,
@@ -177,6 +178,17 @@ export function PersonalAccountDropdown({
             <span>
               <Trans i18nKey={'common:routes.settings'} defaults={'Settings'} />
             </span>
+          </Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem asChild>
+          <Link
+            className={'s-full flex cursor-pointer items-center space-x-2'}
+            href={'/home/cron'}
+          >
+            <Clock className={'h-5'} />
+
+            <span>Cron Jobs</span>
           </Link>
         </DropdownMenuItem>
 

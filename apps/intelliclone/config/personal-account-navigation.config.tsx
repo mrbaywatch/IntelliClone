@@ -1,4 +1,4 @@
-import { Brain, CreditCard, Home, User } from 'lucide-react';
+import { Brain, Clock, CreditCard, Home, User } from 'lucide-react';
 import { z } from 'zod';
 
 import { NavigationConfigSchema } from '@kit/ui/navigation-schema';
@@ -22,6 +22,11 @@ const routes = [
         label: 'Memory',
         path: '/home/memories',
         Icon: <Brain className={iconClasses} />,
+      },
+      {
+        label: 'Cron Jobs',
+        path: '/home/cron',
+        Icon: <Clock className={iconClasses} />,
       },
     ],
   },

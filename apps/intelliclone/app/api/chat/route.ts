@@ -2,8 +2,50 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { messages, language = 'en' } = await request.json();
+    const { messages, language = 'en', userId } = await request.json();
 
+    // Use Clawdbot gateway if configured, otherwise fall back to OpenAI
+    const useClawdbot = process.env.CLAWDBOT_GATEWAY_URL && process.env.CLAWDBOT_GATEWAY_TOKEN;
+
+    if (useClawdbot) {
+      // Route to Clawdbot (Erik)
+      const response = await fetch(`${process.env.CLAWDBOT_GATEWAY_URL}/v1/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.CLAWDBOT_GATEWAY_TOKEN}`,
+          'x-clawdbot-agent-id': 'main',
+        },
+        body: JSON.stringify({
+          model: 'clawdbot:main',
+          stream: false,
+          // Use userId to maintain session continuity
+          user: userId || 'intelliclone-web',
+          messages: [
+            {
+              role: 'user',
+              content: messages[messages.length - 1]?.content || '',
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        console.error('Clawdbot API error:', error);
+        return NextResponse.json(
+          { error: 'Failed to get response from Erik' },
+          { status: 500 }
+        );
+      }
+
+      const data = await response.json();
+      const aiMessage = data.choices?.[0]?.message?.content || 'Sorry, I could not generate a response.';
+
+      return NextResponse.json({ message: aiMessage });
+    }
+
+    // Fallback to OpenAI
     const languageInstruction = language === 'no' 
       ? 'IMPORTANT: You MUST respond in Norwegian (Norsk). All your responses should be in Norwegian.'
       : 'Respond in English.';

@@ -2,17 +2,22 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { User, Plus, Menu, X, Trash2 } from 'lucide-react';
 
 import { ProfileAccountDropdownContainer } from '~/components/personal-account-dropdown-container';
 import { useLanguage } from '~/lib/language-context';
+
+interface MessageImage {
+  name: string;
+  url: string;
+}
 
 interface Message {
   id: string;
   content: string;
   role: 'user' | 'assistant';
   timestamp: Date;
+  images?: MessageImage[];
 }
 
 interface ChatSession {
@@ -29,35 +34,19 @@ interface ContextMenu {
   sessionId: string | null;
 }
 
-const createInitialMessage = (): Message => ({
-  id: '1',
-  content: 'Hey! 👋 I\'m Erik, your personal assistant. Let\'s get you onboarded!\n\nFirst off, what\'s your name?',
-  role: 'assistant',
-  timestamp: new Date(),
-});
-
 const createNewSession = (): ChatSession => ({
   id: Date.now().toString(),
   title: 'New Chat',
-  messages: [createInitialMessage()],
+  messages: [],
   createdAt: new Date(),
 });
 
-// Chat bubble icon SVG
 const ChatIcon = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
   <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
   </svg>
 );
 
-// Brain icon for memory
-const BrainIcon = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
-  <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-  </svg>
-);
-
-// Send icon
 const SendIcon = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
@@ -70,6 +59,10 @@ export default function ChatDashboard() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [filePreviewUrls, setFilePreviewUrls] = useState<string[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [contextMenu, setContextMenu] = useState<ContextMenu>({
     visible: false,
     x: 0,
@@ -79,9 +72,12 @@ export default function ChatDashboard() {
   const { language } = useLanguage();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const activeSession = sessions.find(s => s.id === activeSessionId) || sessions[0];
   const messages = activeSession.messages;
+  const isEmptyChat = messages.length === 0;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -91,7 +87,18 @@ export default function ChatDashboard() {
     scrollToBottom();
   }, [messages]);
 
-  // Close sidebar on mobile when clicking outside
+  const adjustTextareaHeight = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 150)}px`;
+    }
+  }, []);
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [input, adjustTextareaHeight]);
+
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) {
@@ -102,7 +109,80 @@ export default function ChatDashboard() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Close context menu on click outside or Escape key
+  // Generate preview URLs for image files
+  useEffect(() => {
+    const urls = pendingFiles.map(file => {
+      if (file.type.startsWith('image/')) {
+        return URL.createObjectURL(file);
+      }
+      return '';
+    });
+    setFilePreviewUrls(urls);
+    
+    // Cleanup URLs on unmount
+    return () => {
+      urls.forEach(url => {
+        if (url) URL.revokeObjectURL(url);
+      });
+    };
+  }, [pendingFiles]);
+
+  // Drag & drop handlers
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      setPendingFiles(prev => [...prev, ...files]);
+    }
+  }, []);
+
+  // Paste handler for clipboard images
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      
+      const imageFiles: File[] = [];
+      for (const item of items) {
+        if (item.type.startsWith('image/')) {
+          const file = item.getAsFile();
+          if (file) {
+            // Create a named file from clipboard
+            const namedFile = new File([file], `screenshot-${Date.now()}.png`, { type: file.type });
+            imageFiles.push(namedFile);
+          }
+        }
+      }
+      
+      if (imageFiles.length > 0) {
+        e.preventDefault();
+        setPendingFiles(prev => [...prev, ...imageFiles]);
+      }
+    };
+
+    document.addEventListener('paste', handlePaste);
+    return () => document.removeEventListener('paste', handlePaste);
+  }, []);
+
+  const removeFile = (index: number) => {
+    setPendingFiles(files => files.filter((_, i) => i !== index));
+  };
+
   const closeContextMenu = useCallback(() => {
     setContextMenu(prev => ({ ...prev, visible: false }));
   }, []);
@@ -144,7 +224,6 @@ export default function ChatDashboard() {
   const handleDeleteSession = (sessionId: string) => {
     closeContextMenu();
     
-    // If this is the only session, create a new one first
     if (sessions.length === 1) {
       const newSession = createNewSession();
       setSessions([newSession]);
@@ -152,31 +231,43 @@ export default function ChatDashboard() {
       return;
     }
 
-    // Find the index of the session to delete
     const sessionIndex = sessions.findIndex(s => s.id === sessionId);
     const newSessions = sessions.filter(s => s.id !== sessionId);
     setSessions(newSessions);
 
-    // If deleting the active session, switch to another
     if (sessionId === activeSessionId) {
-      // Prefer the next session, or the previous if at the end
       const newActiveIndex = Math.min(sessionIndex, newSessions.length - 1);
       setActiveSessionId(newSessions[newActiveIndex].id);
     }
   };
 
-  const updateSessionMessages = (sessionId: string, newMessages: Message[]) => {
+  const updateSessionMessages = (sessionId: string, newMessages: Message[], newTitle?: string) => {
     setSessions(prev => prev.map(session => {
       if (session.id !== sessionId) return session;
       
-      // Auto-generate title from first user message
-      const firstUserMsg = newMessages.find(m => m.role === 'user');
-      const title = firstUserMsg 
-        ? firstUserMsg.content.slice(0, 30) + (firstUserMsg.content.length > 30 ? '...' : '')
-        : 'New Chat';
+      // Use provided title, or keep existing if not 'New Chat', or generate placeholder
+      const title = newTitle || (session.title !== 'New Chat' ? session.title : 
+        (newMessages.find(m => m.role === 'user')?.content.slice(0, 30) + '...' || 'New Chat'));
       
       return { ...session, messages: newMessages, title };
     }));
+  };
+
+  const generateTitle = async (messages: Message[]): Promise<string> => {
+    try {
+      const response = await fetch('/api/chat/title', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: messages.slice(0, 4).map(m => ({ role: m.role, content: m.content })),
+          language,
+        }),
+      });
+      const data = await response.json();
+      return data.title || 'New Chat';
+    } catch {
+      return 'New Chat';
+    }
   };
 
   const handleNewChat = () => {
@@ -192,21 +283,48 @@ export default function ChatDashboard() {
   };
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    const trimmedInput = input.trim();
+    if (!trimmedInput && pendingFiles.length === 0) return;
+
+    let fileContent = '';
+    const messageImages: MessageImage[] = [];
+    
+    for (const file of pendingFiles) {
+      try {
+        if (file.type.startsWith('image/')) {
+          // Create a persistent URL for the image
+          const url = URL.createObjectURL(file);
+          messageImages.push({ name: file.name, url });
+          fileContent += `[Image: ${file.name}]\n`;
+        } else {
+          const text = await file.text();
+          fileContent += `[File: ${file.name}]\n\`\`\`\n${text}\n\`\`\`\n\n`;
+        }
+      } catch (err) {
+        console.error('Error reading file:', file.name, err);
+      }
+    }
+
+    const fullContent = (trimmedInput + (fileContent ? '\n' + fileContent : '')).trim();
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: input.trim(),
+      content: fullContent,
       role: 'user',
       timestamp: new Date(),
+      images: messageImages.length > 0 ? messageImages : undefined,
     };
 
     const updatedMessages = [...messages, userMessage];
     updateSessionMessages(activeSessionId, updatedMessages);
     setInput('');
+    setPendingFiles([]);
     setIsTyping(true);
 
-    // Call ChatGPT API
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
+
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -229,7 +347,15 @@ export default function ChatDashboard() {
         timestamp: new Date(),
       };
       
-      updateSessionMessages(activeSessionId, [...updatedMessages, aiMessage]);
+      const allMessages = [...updatedMessages, aiMessage];
+      updateSessionMessages(activeSessionId, allMessages);
+      
+      // Generate title after first exchange (1 user + 1 assistant message)
+      if (allMessages.length === 2) {
+        generateTitle(allMessages).then(title => {
+          updateSessionMessages(activeSessionId, allMessages, title);
+        });
+      }
     } catch (error) {
       console.error('Chat error:', error);
       const errorMessage: Message = {
@@ -252,12 +378,13 @@ export default function ChatDashboard() {
   };
 
   const getSessionPreview = (session: ChatSession) => {
+    if (session.messages.length === 0) return language === 'no' ? 'Tom chat' : 'Empty chat';
     const lastMsg = session.messages[session.messages.length - 1];
     return lastMsg?.content.slice(0, 35) + '...' || 'No messages yet';
   };
 
   return (
-    <div className="flex h-screen bg-[#FAFAFA] dark:bg-gray-900">
+    <div className="flex h-screen bg-gray-50 dark:bg-[#212121]">
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <div 
@@ -266,31 +393,30 @@ export default function ChatDashboard() {
         />
       )}
 
-      {/* Sidebar - Frosted Glass */}
+      {/* Sidebar */}
       <aside 
-        className={`fixed left-0 top-0 z-50 h-screen w-[280px] transform border-r border-gray-100/50 bg-white/85 backdrop-blur-xl transition-transform duration-300 ease-in-out dark:border-gray-800/50 dark:bg-gray-900/85 md:relative md:z-auto md:translate-x-0 ${
+        className={`fixed left-0 top-0 z-50 h-screen w-[280px] transform border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out dark:border-gray-800 dark:bg-[#171717] md:relative md:z-auto md:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="flex h-full flex-col">
-          {/* Sidebar Header with Logo */}
-          <div className="border-b border-gray-100/50 px-5 py-5 dark:border-gray-800/50">
+          {/* Sidebar Header */}
+          <div className="border-b border-gray-200 px-5 py-5 dark:border-gray-800">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                {/* Logo Icon */}
                 <div 
-                  className="flex h-8 w-8 items-center justify-center rounded-xl shadow-sm"
+                  className="flex h-8 w-8 items-center justify-center rounded-xl"
                   style={{ background: 'linear-gradient(to bottom right, #D4A84B, #B8923F)' }}
                 >
                   <ChatIcon className="h-4 w-4 text-white" />
                 </div>
-                <span className="font-semibold text-gray-800 dark:text-gray-100">
+                <span className="font-semibold text-gray-900 dark:text-gray-100">
                   Intelli<span style={{ color: '#D4A84B' }}>Clone</span>
                 </span>
               </div>
               <button
                 onClick={() => setSidebarOpen(false)}
-                className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-300 md:hidden"
+                className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300 md:hidden"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -301,31 +427,20 @@ export default function ChatDashboard() {
           <div className="p-4">
             <button
               onClick={handleNewChat}
-              className="flex w-full items-center justify-center gap-2.5 rounded-2xl border border-gray-200/80 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-[0_4px_40px_-8px_rgba(0,0,0,0.08)] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:shadow-[0_2px_20px_-4px_rgba(0,0,0,0.2)] dark:hover:border-gray-600"
+              className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-gray-600 dark:hover:bg-gray-700"
             >
               <Plus className="h-4 w-4" />
-              New Chat
+              {language === 'no' ? 'Ny chat' : 'New Chat'}
             </button>
-          </div>
-
-          {/* Memory Link */}
-          <div className="mb-2 px-4">
-            <Link
-              href="/home/memories"
-              className="flex items-center gap-3 rounded-2xl px-4 py-3 text-gray-600 transition-all hover:bg-white/60 dark:text-gray-300 dark:hover:bg-gray-800/60"
-            >
-              <BrainIcon className="h-5 w-5" style={{ color: '#D4A84B' }} />
-              <span className="text-sm font-medium">Memory</span>
-            </Link>
           </div>
 
           {/* Sessions Label */}
           <div className="px-6 py-2">
-            <span className="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">Recent Chats</span>
+            <span className="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">{language === 'no' ? 'Nylige samtaler' : 'Recent Chats'}</span>
           </div>
 
           {/* Session List */}
-          <div className="flex-1 space-y-1.5 overflow-y-auto px-4 pb-4">
+          <div className="flex-1 space-y-1 overflow-y-auto px-4 pb-4">
             {sessions.map((session) => {
               const isActive = session.id === activeSessionId;
               return (
@@ -333,13 +448,12 @@ export default function ChatDashboard() {
                   key={session.id}
                   onClick={() => handleSelectSession(session.id)}
                   onContextMenu={(e) => handleContextMenu(e, session.id)}
-                  className={`relative flex w-full items-start gap-3 rounded-2xl px-4 py-3.5 text-left transition-all ${
+                  className={`relative flex w-full items-start gap-3 rounded-xl px-4 py-3 text-left transition-all ${
                     isActive
-                      ? 'bg-white shadow-[0_2px_20px_-4px_rgba(0,0,0,0.06)] dark:bg-gray-800 dark:shadow-[0_2px_20px_-4px_rgba(0,0,0,0.2)]'
-                      : 'hover:bg-white/70 dark:hover:bg-gray-800/70'
+                      ? 'bg-gray-100 dark:bg-gray-800'
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
                   }`}
                 >
-                  {/* Active indicator */}
                   {isActive && (
                     <div 
                       className="absolute left-0 top-1/2 h-[60%] w-[3px] -translate-y-1/2 rounded-r-sm"
@@ -363,165 +477,301 @@ export default function ChatDashboard() {
             })}
           </div>
 
-          {/* User Profile Section - Fixed to bottom */}
-          <div className="mt-auto border-t border-gray-100/50 p-4 dark:border-gray-800/50">
+          {/* User Profile Section */}
+          <div className="mt-auto border-t border-gray-200 p-4 dark:border-gray-800">
             <ProfileAccountDropdownContainer showProfileName={true} />
           </div>
         </div>
       </aside>
 
       {/* Main Chat Area */}
-      <main className="flex flex-1 items-center justify-center p-4 md:p-8">
+      <main 
+        className={`flex flex-1 flex-col relative ${isDragging ? 'ring-2 ring-inset ring-amber-500/50' : ''}`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        {/* Drag overlay */}
+        {isDragging && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm">
+            <div className="rounded-2xl border-2 border-dashed border-amber-500 bg-gray-800/90 px-8 py-6 text-center">
+              <p className="text-lg font-medium text-white">Drop files here</p>
+              <p className="text-sm text-gray-400">Images, documents, and more</p>
+            </div>
+          </div>
+        )}
         
-        {/* Mobile Header (Fixed) */}
-        <div 
-          className="fixed left-0 right-0 top-0 z-40 border-b border-gray-100/50 bg-white/85 backdrop-blur-xl dark:border-gray-800/50 dark:bg-gray-900/85 md:hidden"
-        >
+        {/* Mobile Header */}
+        <div className="border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-[#212121] md:hidden">
           <div className="flex items-center justify-between px-4 py-3">
             <button 
               onClick={() => setSidebarOpen(true)}
-              className="rounded-xl p-2 transition-colors hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
+              className="rounded-xl p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
             >
               <Menu className="h-5 w-5 text-gray-600 dark:text-gray-300" />
             </button>
-            <div className="flex items-center gap-2">
-              <Image
-                src="/images/erik-avatar.png"
-                alt="Erik"
-                width={32}
-                height={32}
-                className="h-8 w-8 rounded-full object-cover"
-              />
-              <span className="font-semibold" style={{ color: '#D4A84B' }}>Erik</span>
-            </div>
+            <span className="font-semibold" style={{ color: '#D4A84B' }}>Erik</span>
             <div className="w-9" />
           </div>
         </div>
 
-        {/* Floating Chat Card */}
-        <div 
-          className="mt-16 flex h-[calc(100vh-6rem)] w-full max-w-[850px] flex-col overflow-hidden rounded-[2rem] bg-white shadow-[0_8px_60px_-12px_rgba(0,0,0,0.1)] dark:bg-gray-800 dark:shadow-[0_8px_60px_-12px_rgba(0,0,0,0.3)] md:mt-0 md:h-[720px]"
-        >
-          {/* Chat Header */}
-          <div className="flex items-center justify-between border-b border-gray-100/50 px-6 py-5 dark:border-gray-700/50 md:px-8">
-            <div className="flex items-center gap-3.5">
-              <div className="relative">
-                <Image
-                  src="/images/erik-avatar.png"
-                  alt="Erik"
-                  width={44}
-                  height={44}
-                  className="h-11 w-11 rounded-full object-cover shadow-sm"
-                />
-                {/* Online indicator */}
-                <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-emerald-400 dark:border-gray-800" />
-              </div>
-              <div>
-                <h1 className="font-semibold" style={{ color: '#D4A84B' }}>Erik</h1>
-                <p className="text-xs text-gray-400 dark:text-gray-500">Your personal assistant</p>
+        {/* Chat Content */}
+        <div className="flex flex-1 flex-col">
+          
+          {/* Empty State - ChatGPT Style */}
+          {isEmptyChat && !isTyping ? (
+            <div className="flex flex-1 flex-col items-center justify-center px-4">
+              <Image
+                src="/images/erik-avatar.png"
+                alt="Erik"
+                width={80}
+                height={80}
+                className="mb-4 h-20 w-20 rounded-full object-cover shadow-lg"
+              />
+              <h1 className="mb-8 text-3xl font-medium text-gray-800 dark:text-gray-200">
+                {language === 'no' ? 'Hei sjef, hvordan kan jeg hjelpe deg?' : 'How can I help you today, boss?'}
+              </h1>
+              
+              {/* Input in center */}
+              <div className="w-full max-w-2xl">
+                {/* File previews for empty state */}
+                {pendingFiles.length > 0 && (
+                  <div className="mb-3 flex flex-wrap justify-center gap-2">
+                    {pendingFiles.map((file, index) => (
+                      <div key={index} className="group relative">
+                        {file.type.startsWith('image/') && filePreviewUrls[index] ? (
+                          <div className="relative h-20 w-20 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+                            <img src={filePreviewUrls[index]} alt={file.name} className="h-full w-full object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => removeFile(index)}
+                              className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
+                            >
+                              <Trash2 className="h-5 w-5 text-white" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex h-16 items-center gap-2 rounded-lg border border-gray-200 bg-gray-100 px-3 dark:border-gray-700 dark:bg-gray-800">
+                            <div className="flex-1 min-w-0">
+                              <p className="truncate text-xs font-medium text-gray-700 dark:text-gray-300">{file.name}</p>
+                              <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeFile(index)}
+                              className="flex h-6 w-6 items-center justify-center rounded-full text-gray-400 opacity-0 transition-opacity hover:bg-gray-200 hover:text-gray-600 group-hover:opacity-100 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                <div className="flex items-end gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-sm transition-all focus-within:border-gray-300 focus-within:shadow-md dark:border-gray-700 dark:bg-[#2F2F2F] dark:focus-within:border-gray-600">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      if (files.length > 0) {
+                        setPendingFiles(prev => [...prev, ...files]);
+                      }
+                      e.target.value = '';
+                    }}
+                    className="hidden"
+                    accept="*/*"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="mb-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                    title="Attach files"
+                  >
+                    <Plus className="h-5 w-5" />
+                  </button>
+
+                  <textarea
+                    ref={textareaRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    placeholder={language === 'no' ? 'Spør om hva som helst' : 'Ask anything'}
+                    rows={1}
+                    className="max-h-[150px] min-h-[24px] flex-1 resize-none bg-transparent text-[15px] leading-6 text-gray-800 placeholder-gray-400 outline-none dark:text-gray-100 dark:placeholder-gray-500"
+                  />
+                  
+                  <button
+                    onClick={handleSend}
+                    disabled={!input.trim() && pendingFiles.length === 0}
+                    className="mb-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-900 text-white transition-all hover:bg-gray-800 disabled:opacity-30 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
+                  >
+                    <SendIcon className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <>
+              {/* Messages Area */}
+              <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8">
+                <div className="mx-auto flex max-w-3xl flex-col gap-6">
+                  {messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`flex items-start gap-4 ${
+                        message.role === 'user' ? 'flex-row-reverse' : 'flex-row'
+                      }`}
+                    >
+                      {message.role === 'user' ? (
+                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700">
+                          <User className="h-4 w-4 text-gray-500 dark:text-gray-300" />
+                        </div>
+                      ) : (
+                        <Image
+                          src="/images/erik-avatar.png"
+                          alt="Erik"
+                          width={32}
+                          height={32}
+                          className="h-8 w-8 flex-shrink-0 rounded-full object-cover"
+                        />
+                      )}
 
-          {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto px-6 py-6 md:px-8">
-            <div className="flex flex-col gap-5">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex items-end gap-3 ${
-                    message.role === 'user' ? 'flex-row-reverse' : 'flex-row'
-                  }`}
-                >
-                  {/* Avatar */}
-                  {message.role === 'user' ? (
-                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
-                      <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                      <div
+                        className={`max-w-[80%] ${
+                          message.role === 'user'
+                            ? 'rounded-2xl bg-gray-100 px-4 py-3 text-gray-800 dark:bg-[#2F2F2F] dark:text-gray-100'
+                            : 'text-gray-800 dark:text-gray-100'
+                        }`}
+                      >
+                        {/* Image previews */}
+                        {message.images && message.images.length > 0 && (
+                          <div className="mb-2 flex flex-wrap gap-2">
+                            {message.images.map((img, idx) => (
+                              <button
+                                key={idx}
+                                onClick={() => setLightboxImage(img.url)}
+                                className="relative overflow-hidden rounded-lg transition-transform hover:scale-[1.02]"
+                              >
+                                <img
+                                  src={img.url}
+                                  alt={img.name}
+                                  className="h-32 max-w-[200px] object-cover rounded-lg"
+                                />
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        {/* Text content - filter out [Image: ...] tags */}
+                        <p className="whitespace-pre-wrap text-[15px] leading-relaxed">
+                          {message.content.replace(/\[Image: [^\]]+\]\n?/g, '').trim()}
+                        </p>
+                      </div>
                     </div>
-                  ) : (
-                    <Image
-                      src="/images/erik-avatar.png"
-                      alt="Erik"
-                      width={32}
-                      height={32}
-                      className="h-8 w-8 flex-shrink-0 rounded-full object-cover shadow-sm"
-                    />
+                  ))}
+
+                  {/* Typing Indicator */}
+                  {isTyping && (
+                    <div className="flex items-start gap-4">
+                      <Image
+                        src="/images/erik-avatar.png"
+                        alt="Erik"
+                        width={32}
+                        height={32}
+                        className="h-8 w-8 flex-shrink-0 rounded-full object-cover"
+                      />
+                      <div className="flex gap-1.5 py-3">
+                        <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400 dark:bg-gray-500" style={{ animationDelay: '0ms' }} />
+                        <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400 dark:bg-gray-500" style={{ animationDelay: '150ms' }} />
+                        <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400 dark:bg-gray-500" style={{ animationDelay: '300ms' }} />
+                      </div>
+                    </div>
                   )}
 
-                  {/* Message Bubble */}
-                  <div
-                    className={`max-w-[75%] px-5 py-3.5 ${
-                      message.role === 'user'
-                        ? 'rounded-3xl rounded-br-lg bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100'
-                        : 'rounded-3xl rounded-bl-lg border border-[#D4A84B]/15 bg-gradient-to-br from-[#D4A84B]/[0.06] to-[#D4A84B]/[0.03] text-gray-800 dark:border-[#D4A84B]/25 dark:from-[#D4A84B]/[0.1] dark:to-[#D4A84B]/[0.05] dark:text-gray-100'
-                    }`}
-                  >
-                    <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{message.content}</p>
-                  </div>
+                  <div ref={messagesEndRef} />
                 </div>
-              ))}
+              </div>
 
-              {/* Typing Indicator */}
-              {isTyping && (
-                <div className="flex items-end gap-3">
-                  <Image
-                    src="/images/erik-avatar.png"
-                    alt="Erik"
-                    width={32}
-                    height={32}
-                    className="h-8 w-8 flex-shrink-0 rounded-full object-cover shadow-sm"
-                  />
-                  <div 
-                    className="rounded-3xl rounded-bl-lg border border-[#D4A84B]/15 bg-gradient-to-br from-[#D4A84B]/[0.06] to-[#D4A84B]/[0.03] px-5 py-4 dark:border-[#D4A84B]/25 dark:from-[#D4A84B]/[0.1] dark:to-[#D4A84B]/[0.05]"
-                  >
-                    <div className="flex gap-1.5">
-                      <span 
-                        className="h-2 w-2 animate-bounce rounded-full"
-                        style={{ backgroundColor: '#D4A84B', animationDelay: '0ms' }}
-                      />
-                      <span 
-                        className="h-2 w-2 animate-bounce rounded-full"
-                        style={{ backgroundColor: '#D4A84B', animationDelay: '150ms' }}
-                      />
-                      <span 
-                        className="h-2 w-2 animate-bounce rounded-full"
-                        style={{ backgroundColor: '#D4A84B', animationDelay: '300ms' }}
-                      />
+              {/* Input Area - Bottom */}
+              <div className="border-t border-gray-200 bg-gray-50 px-4 py-4 dark:border-gray-800 dark:bg-[#171717] md:px-8">
+                <div className="mx-auto max-w-3xl">
+                  {pendingFiles.length > 0 && (
+                    <div className="mb-3 flex flex-wrap gap-2">
+                      {pendingFiles.map((file, index) => (
+                        <div
+                          key={index}
+                          className="group relative"
+                        >
+                          {file.type.startsWith('image/') && filePreviewUrls[index] ? (
+                            <div className="relative h-20 w-20 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+                              <img
+                                src={filePreviewUrls[index]}
+                                alt={file.name}
+                                className="h-full w-full object-cover"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removeFile(index)}
+                                className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
+                              >
+                                <Trash2 className="h-5 w-5 text-white" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex h-20 items-center gap-2 rounded-lg border border-gray-200 bg-gray-100 px-3 dark:border-gray-700 dark:bg-gray-800">
+                              <div className="flex-1 min-w-0">
+                                <p className="truncate text-xs font-medium text-gray-700 dark:text-gray-300">{file.name}</p>
+                                <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeFile(index)}
+                                className="flex h-6 w-6 items-center justify-center rounded-full text-gray-400 opacity-0 transition-opacity hover:bg-gray-200 hover:text-gray-600 group-hover:opacity-100 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
+                  )}
+
+                  <div className="flex items-end gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-sm transition-all focus-within:border-gray-300 focus-within:shadow-md dark:border-gray-700 dark:bg-[#2F2F2F] dark:focus-within:border-gray-600">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="mb-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                      title="Attach files"
+                    >
+                      <Plus className="h-5 w-5" />
+                    </button>
+
+                    <textarea
+                      ref={textareaRef}
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={handleKeyPress}
+                      placeholder={language === 'no' ? 'Spør om hva som helst' : 'Ask anything'}
+                      rows={1}
+                      className="max-h-[150px] min-h-[24px] flex-1 resize-none bg-transparent text-[15px] leading-6 text-gray-800 placeholder-gray-400 outline-none dark:text-gray-100 dark:placeholder-gray-500"
+                    />
+                    
+                    <button
+                      onClick={handleSend}
+                      disabled={!input.trim() && pendingFiles.length === 0}
+                      className="mb-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-900 text-white transition-all hover:bg-gray-800 disabled:opacity-30 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
+                    >
+                      <SendIcon className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
-              )}
-
-              <div ref={messagesEndRef} />
-            </div>
-          </div>
-
-          {/* Input Area */}
-          <div className="border-t border-gray-100/50 bg-gray-50/30 px-6 py-5 dark:border-gray-700/50 dark:bg-gray-900/30 md:px-8">
-            <div 
-              className="flex items-center gap-3 rounded-2xl border border-gray-200/80 bg-white px-5 py-3 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.06)] transition-all focus-within:border-[#D4A84B]/40 focus-within:shadow-[0_4px_40px_-8px_rgba(0,0,0,0.08)] focus-within:ring-2 focus-within:ring-[#D4A84B]/10 dark:border-gray-700 dark:bg-gray-800 dark:shadow-[0_2px_20px_-4px_rgba(0,0,0,0.2)] dark:focus-within:border-[#D4A84B]/50"
-            >
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyPress}
-                placeholder="Message Erik..."
-                className="flex-1 bg-transparent text-[15px] text-gray-800 placeholder-gray-400 outline-none dark:text-gray-100 dark:placeholder-gray-500"
-              />
-              <button
-                onClick={handleSend}
-                disabled={!input.trim()}
-                className="flex h-10 w-10 items-center justify-center rounded-full text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md disabled:opacity-30 disabled:hover:translate-y-0"
-                style={{ background: 'linear-gradient(135deg, #D4A84B 0%, #B8923F 100%)' }}
-              >
-                <SendIcon className="h-4 w-4" />
-              </button>
-            </div>
-            <p className="mt-3 text-center text-xs text-gray-400 dark:text-gray-500">
-              Erik can make mistakes. Consider checking important information.
-            </p>
-          </div>
+              </div>
+            </>
+          )}
         </div>
       </main>
 
@@ -540,11 +790,31 @@ export default function ChatDashboard() {
             className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
           >
             <Trash2 className="h-4 w-4" />
-            Delete
+            {language === 'no' ? 'Slett' : 'Delete'}
           </button>
+        </div>
+      )}
+
+      {/* Image Lightbox */}
+      {lightboxImage && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          onClick={() => setLightboxImage(null)}
+        >
+          <button
+            className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
+            onClick={() => setLightboxImage(null)}
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <img
+            src={lightboxImage}
+            alt="Full size"
+            className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
     </div>
   );
 }
-// Build: 1769599831
