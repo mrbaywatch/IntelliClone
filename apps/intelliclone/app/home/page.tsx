@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { User, Plus, Menu, X, Trash2, Globe } from 'lucide-react';
+import { User, Plus, Menu, X, Trash2 } from 'lucide-react';
 
 import { ProfileAccountDropdownContainer } from '~/components/personal-account-dropdown-container';
 import { useLanguage } from '~/lib/language-context';
@@ -76,7 +76,7 @@ export default function ChatDashboard() {
     y: 0,
     sessionId: null,
   });
-  const { language, setLanguage, languageLabel } = useLanguage();
+  const { language } = useLanguage();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
 
@@ -363,25 +363,9 @@ export default function ChatDashboard() {
             })}
           </div>
 
-          {/* Language Toggle & User Profile Section - Fixed to bottom */}
-          <div className="mt-auto border-t border-gray-100/50 dark:border-gray-800/50">
-            {/* Language Toggle */}
-            <div className="border-b border-gray-100/50 px-4 py-3 dark:border-gray-800/50">
-              <button
-                onClick={() => setLanguage(language === 'en' ? 'no' : 'en')}
-                className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-gray-600 transition-all hover:bg-white/60 dark:text-gray-300 dark:hover:bg-gray-800/60"
-              >
-                <Globe className="h-5 w-5" style={{ color: '#D4A84B' }} />
-                <span className="text-sm font-medium">Language: {languageLabel}</span>
-                <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">
-                  {language === 'en' ? '🇬🇧' : '🇳🇴'}
-                </span>
-              </button>
-            </div>
-            {/* Profile */}
-            <div className="p-4">
-              <ProfileAccountDropdownContainer showProfileName={true} />
-            </div>
+          {/* User Profile Section - Fixed to bottom */}
+          <div className="mt-auto border-t border-gray-100/50 p-4 dark:border-gray-800/50">
+            <ProfileAccountDropdownContainer showProfileName={true} />
           </div>
         </div>
       </aside>

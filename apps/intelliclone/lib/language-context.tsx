@@ -21,6 +21,19 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     if (saved === 'en' || saved === 'no') {
       setLanguageState(saved);
     }
+
+    // Listen for language changes from dropdown
+    const handleLanguageChange = (e: CustomEvent) => {
+      const newLang = e.detail as Language;
+      if (newLang === 'en' || newLang === 'no') {
+        setLanguageState(newLang);
+      }
+    };
+
+    window.addEventListener('language-change', handleLanguageChange as EventListener);
+    return () => {
+      window.removeEventListener('language-change', handleLanguageChange as EventListener);
+    };
   }, []);
 
   const setLanguage = (lang: Language) => {
