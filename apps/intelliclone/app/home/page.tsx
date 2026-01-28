@@ -258,7 +258,7 @@ export default function ChatDashboard() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#FAFAFA]">
+    <div className="flex h-screen bg-[#FAFAFA]">
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <div 
@@ -269,7 +269,7 @@ export default function ChatDashboard() {
 
       {/* Sidebar - Frosted Glass */}
       <aside 
-        className={`fixed left-0 top-0 z-50 h-full w-[280px] transform border-r border-gray-100/50 transition-transform duration-300 ease-in-out md:relative md:z-auto md:translate-x-0 ${
+        className={`fixed left-0 top-0 z-50 h-screen w-[280px] transform border-r border-gray-100/50 transition-transform duration-300 ease-in-out md:relative md:z-auto md:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         style={{
