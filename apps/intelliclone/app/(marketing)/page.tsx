@@ -17,7 +17,7 @@ const translations = {
       title1: 'AI That Actually',
       title2: 'Remembers You',
       subtitle: 'Your personal AI assistant that learns your preferences, remembers your conversations, and grows smarter with every interaction. Built for Norway.',
-      cta: 'Start Your Free Trial',
+      cta: 'Schedule a Demo',
       learnMore: 'Learn More →',
     },
     features: {
@@ -77,7 +77,7 @@ const translations = {
       subtitle: "Join thousands of Norwegians who've upgraded to a smarter, more personal AI assistant.",
       button: 'Get Started',
       demo: 'Schedule a Demo',
-      footnote: 'No credit card required • 14-day free trial • Cancel anytime',
+      footnote: 'Get a personalized walkthrough of IntelliClone',
     },
     footer: {
       tagline: 'AI that remembers you.\nBuilt for Norway.',
@@ -107,7 +107,7 @@ const translations = {
       title1: 'AI som faktisk',
       title2: 'husker deg',
       subtitle: 'Din personlige AI-assistent som lærer dine preferanser, husker samtalene dine og blir smartere for hver interaksjon. Bygget for Norge.',
-      cta: 'Start din gratis prøveperiode',
+      cta: 'Book en demo',
       learnMore: 'Les mer →',
     },
     features: {
@@ -167,7 +167,7 @@ const translations = {
       subtitle: 'Bli med tusenvis av nordmenn som har oppgradert til en smartere, mer personlig AI-assistent.',
       button: 'Kom i gang',
       demo: 'Book en demo',
-      footnote: 'Ingen kredittkort nødvendig • 14 dagers gratis prøveperiode • Avbryt når som helst',
+      footnote: 'Få en personlig gjennomgang av IntelliClone',
     },
     footer: {
       tagline: 'AI som husker deg.\nBygget for Norge.',
