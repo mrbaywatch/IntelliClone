@@ -369,8 +369,8 @@ export default function ChatDashboard() {
             })}
           </div>
 
-          {/* User Profile Section */}
-          <div className="relative border-t border-gray-100/50 p-4" ref={profileMenuRef}>
+          {/* User Profile Section - Fixed to bottom */}
+          <div className="relative mt-auto border-t border-gray-100/50 p-4" ref={profileMenuRef}>
             <button
               onClick={() => setProfileMenuOpen(!profileMenuOpen)}
               className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 transition-all hover:bg-white/60"
