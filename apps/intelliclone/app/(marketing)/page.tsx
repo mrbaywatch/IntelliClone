@@ -516,10 +516,10 @@ export default function LandingPage() {
             <div className="fade-in float">
               <div className="bg-white rounded-3xl soft-shadow p-8 max-w-md mx-auto">
                 <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-100">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold to-gold-dark"></div>
+                  <img src="/images/erik-avatar.png" alt="Erik" className="w-10 h-10 rounded-full object-cover" />
                   <div>
-                    <div className="font-semibold">IntelliClone</div>
-                    <div className="text-xs text-green-500">Online</div>
+                    <div className="font-semibold text-gold">Erik</div>
+                    <div className="text-xs text-green-500">{lang === 'en' ? 'Online' : 'Pålogget'}</div>
                   </div>
                 </div>
 
