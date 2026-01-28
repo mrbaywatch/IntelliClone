@@ -525,7 +525,7 @@ export default function LandingPage() {
 
                 <div className="space-y-4">
                   <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex-shrink-0"></div>
+                    <img src="/images/erik-avatar.png" alt="Erik" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
                     <div className="bg-gray-100 rounded-2xl rounded-tl-md px-4 py-3 max-w-xs">
                       <p className="text-sm text-gray-700">{t.chat.msg1}</p>
                     </div>
@@ -536,7 +536,7 @@ export default function LandingPage() {
                     </div>
                   </div>
                   <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex-shrink-0"></div>
+                    <img src="/images/erik-avatar.png" alt="Erik" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
                     <div className="bg-gray-100 rounded-2xl rounded-tl-md px-4 py-3 max-w-xs">
                       <p className="text-sm text-gray-700">{t.chat.msg3}</p>
                     </div>
