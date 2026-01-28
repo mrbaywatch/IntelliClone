@@ -9,6 +9,7 @@ import {
   Home,
   LogOut,
   MessageCircleQuestion,
+  Settings,
   Shield,
 } from 'lucide-react';
 
@@ -160,6 +161,19 @@ export function PersonalAccountDropdown({
 
             <span>
               <Trans i18nKey={'common:routes.home'} />
+            </span>
+          </Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem asChild>
+          <Link
+            className={'s-full flex cursor-pointer items-center space-x-2'}
+            href={'/home/settings'}
+          >
+            <Settings className={'h-5'} />
+
+            <span>
+              <Trans i18nKey={'common:routes.settings'} defaults={'Settings'} />
             </span>
           </Link>
         </DropdownMenuItem>

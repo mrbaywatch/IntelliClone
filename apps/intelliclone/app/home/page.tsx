@@ -3,7 +3,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { User, Plus, Menu, X, Trash2, Settings, LogOut, ChevronUp } from 'lucide-react';
+import { User, Plus, Menu, X, Trash2 } from 'lucide-react';
+
+import { ProfileAccountDropdownContainer } from '~/components/personal-account-dropdown-container';
 
 interface Message {
   id: string;
@@ -73,10 +75,8 @@ export default function ChatDashboard() {
     y: 0,
     sessionId: null,
   });
-  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
-  const profileMenuRef = useRef<HTMLDivElement>(null);
 
   const activeSession = sessions.find(s => s.id === activeSessionId) || sessions[0];
   const messages = activeSession.messages;
@@ -110,19 +110,15 @@ export default function ChatDashboard() {
       if (contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) {
         closeContextMenu();
       }
-      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target as Node)) {
-        setProfileMenuOpen(false);
-      }
     };
 
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         closeContextMenu();
-        setProfileMenuOpen(false);
       }
     };
 
-    if (contextMenu.visible || profileMenuOpen) {
+    if (contextMenu.visible) {
       document.addEventListener('mousedown', handleClickOutside);
       document.addEventListener('keydown', handleEscape);
     }
@@ -131,7 +127,7 @@ export default function ChatDashboard() {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleEscape);
     };
-  }, [contextMenu.visible, profileMenuOpen, closeContextMenu]);
+  }, [contextMenu.visible, closeContextMenu]);
 
   const handleContextMenu = (e: React.MouseEvent, sessionId: string) => {
     e.preventDefault();
@@ -370,45 +366,8 @@ export default function ChatDashboard() {
           </div>
 
           {/* User Profile Section - Fixed to bottom */}
-          <div className="relative mt-auto border-t border-gray-100/50 p-4" ref={profileMenuRef}>
-            <button
-              onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-              className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 transition-all hover:bg-white/60"
-            >
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100">
-                <User className="h-4 w-4 text-gray-600" />
-              </div>
-              <div className="min-w-0 flex-1 text-left">
-                <p className="truncate text-sm font-medium text-gray-800">Johannes</p>
-                <p className="truncate text-xs text-gray-400">Personal Account</p>
-              </div>
-              <ChevronUp className={`h-4 w-4 text-gray-400 transition-transform ${profileMenuOpen ? '' : 'rotate-180'}`} />
-            </button>
-
-            {/* Profile Popup Menu */}
-            {profileMenuOpen && (
-              <div 
-                className="absolute bottom-full left-4 right-4 mb-2 overflow-hidden rounded-2xl bg-white shadow-[0_4px_40px_-8px_rgba(0,0,0,0.15)]"
-              >
-                <Link
-                  href="/home/settings"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 transition-colors hover:bg-gray-50"
-                  onClick={() => setProfileMenuOpen(false)}
-                >
-                  <Settings className="h-4 w-4" />
-                  <span className="text-sm font-medium">Settings</span>
-                </Link>
-                <div className="border-t border-gray-100" />
-                <Link
-                  href="/auth/sign-out"
-                  className="flex items-center gap-3 px-4 py-3 text-red-600 transition-colors hover:bg-red-50"
-                  onClick={() => setProfileMenuOpen(false)}
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span className="text-sm font-medium">Sign Out</span>
-                </Link>
-              </div>
-            )}
+          <div className="mt-auto border-t border-gray-100/50 p-4">
+            <ProfileAccountDropdownContainer showProfileName={true} />
           </div>
         </div>
       </aside>
