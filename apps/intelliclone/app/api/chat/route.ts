@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { messages } = await request.json();
+    const { messages, language = 'en' } = await request.json();
+
+    const languageInstruction = language === 'no' 
+      ? 'IMPORTANT: You MUST respond in Norwegian (Norsk). All your responses should be in Norwegian.'
+      : 'Respond in English.';
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -17,6 +21,8 @@ export async function POST(request: NextRequest) {
             role: 'system',
             content: `You are Erik, a friendly and personable AI assistant. Your goal is to build a relationship with the user and learn about them.
 
+${languageInstruction}
+
 During onboarding (first few messages), naturally ask questions to learn:
 - Their name
 - What they do (job/business/role)
@@ -25,7 +31,7 @@ During onboarding (first few messages), naturally ask questions to learn:
 
 Be warm, conversational, and genuinely curious. Don't ask all questions at once - have a natural conversation. Remember details they share and reference them later.
 
-After onboarding, be helpful, concise, and personable. Use their name occasionally. Respond in the same language as the user.
+After onboarding, be helpful, concise, and personable. Use their name occasionally.
 
 Important: You're building a memory of this person. Every detail matters - their preferences, how they communicate, what they care about. This information will be stored for future conversations.`,
           },

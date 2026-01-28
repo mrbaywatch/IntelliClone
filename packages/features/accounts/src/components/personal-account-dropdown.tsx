@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 import {
   ChevronsUpDown,
+  Globe,
   Home,
   LogOut,
   MessageCircleQuestion,
