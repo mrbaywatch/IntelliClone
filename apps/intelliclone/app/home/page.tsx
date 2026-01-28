@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Send, User, Plus, MessageSquare, Menu, X, Trash2, Brain } from 'lucide-react';
+import { User, Plus, Menu, X, Trash2 } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -39,6 +39,27 @@ const createNewSession = (): ChatSession => ({
   messages: [createInitialMessage()],
   createdAt: new Date(),
 });
+
+// Chat bubble icon SVG
+const ChatIcon = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
+  <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+  </svg>
+);
+
+// Brain icon for memory
+const BrainIcon = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
+  <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+  </svg>
+);
+
+// Send icon
+const SendIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+  </svg>
+);
 
 export default function ChatDashboard() {
   const [sessions, setSessions] = useState<ChatSession[]>([createNewSession()]);
@@ -226,12 +247,12 @@ export default function ChatDashboard() {
   };
 
   const getSessionPreview = (session: ChatSession) => {
-    const lastUserMessage = [...session.messages].reverse().find(m => m.role === 'user');
-    return lastUserMessage?.content.slice(0, 40) || 'No messages yet';
+    const lastMsg = session.messages[session.messages.length - 1];
+    return lastMsg?.content.slice(0, 35) + '...' || 'No messages yet';
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] bg-white">
+    <div className="flex min-h-screen bg-[#FAFAFA]">
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <div 
@@ -240,29 +261,47 @@ export default function ChatDashboard() {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - Frosted Glass */}
       <aside 
-        className={`fixed left-0 top-0 z-50 h-full w-[280px] transform border-r border-gray-100 bg-gray-50/80 backdrop-blur-xl transition-transform duration-300 ease-in-out md:relative md:z-auto md:translate-x-0 ${
+        className={`fixed left-0 top-0 z-50 h-full w-[280px] transform border-r border-gray-100/50 transition-transform duration-300 ease-in-out md:relative md:z-auto md:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
+        style={{
+          background: 'rgba(255, 255, 255, 0.85)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+        }}
       >
         <div className="flex h-full flex-col">
-          {/* Sidebar Header */}
-          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-4">
-            <h2 className="text-sm font-semibold text-gray-700">Chats</h2>
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600 md:hidden"
-            >
-              <X className="h-5 w-5" />
-            </button>
+          {/* Sidebar Header with Logo */}
+          <div className="border-b border-gray-100/50 px-5 py-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {/* Logo Icon */}
+                <div 
+                  className="flex h-8 w-8 items-center justify-center rounded-xl shadow-sm"
+                  style={{ background: 'linear-gradient(to bottom right, #D4A84B, #B8923F)' }}
+                >
+                  <ChatIcon className="h-4 w-4 text-white" />
+                </div>
+                <span className="font-semibold text-gray-800">
+                  Intelli<span style={{ color: '#D4A84B' }}>Clone</span>
+                </span>
+              </div>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600 md:hidden"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
           </div>
 
           {/* New Chat Button */}
-          <div className="p-3">
+          <div className="p-4">
             <button
               onClick={handleNewChat}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-all hover:border-gray-300 hover:shadow"
+              className="flex w-full items-center justify-center gap-2.5 rounded-2xl border border-gray-200/80 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-[0_4px_40px_-8px_rgba(0,0,0,0.08)]"
             >
               <Plus className="h-4 w-4" />
               New Chat
@@ -270,94 +309,131 @@ export default function ChatDashboard() {
           </div>
 
           {/* Memory Link */}
-          <div className="px-3">
+          <div className="mb-2 px-4">
             <Link
               href="/home/memories"
-              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-600 transition-all hover:bg-white/60"
+              className="flex items-center gap-3 rounded-2xl px-4 py-3 text-gray-600 transition-all hover:bg-white/60"
             >
-              <Brain className="h-4 w-4" style={{ color: '#D4A84B' }} />
-              Memory
+              <BrainIcon className="h-5 w-5" style={{ color: '#D4A84B' }} />
+              <span className="text-sm font-medium">Memory</span>
             </Link>
           </div>
 
+          {/* Sessions Label */}
+          <div className="px-6 py-2">
+            <span className="text-xs font-medium uppercase tracking-wide text-gray-400">Recent Chats</span>
+          </div>
+
           {/* Session List */}
-          <div className="flex-1 overflow-y-auto px-3 pb-3">
-            <div className="flex flex-col gap-1">
-              {sessions.map((session) => (
+          <div className="flex-1 space-y-1.5 overflow-y-auto px-4 pb-4">
+            {sessions.map((session) => {
+              const isActive = session.id === activeSessionId;
+              return (
                 <button
                   key={session.id}
                   onClick={() => handleSelectSession(session.id)}
                   onContextMenu={(e) => handleContextMenu(e, session.id)}
-                  className={`group flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition-all ${
-                    session.id === activeSessionId
-                      ? 'bg-white shadow-sm'
-                      : 'hover:bg-white/60'
+                  className={`relative flex w-full items-start gap-3 rounded-2xl px-4 py-3.5 text-left transition-all ${
+                    isActive
+                      ? 'bg-white shadow-[0_2px_20px_-4px_rgba(0,0,0,0.06)]'
+                      : 'hover:bg-white/70'
                   }`}
-                  style={session.id === activeSessionId ? { 
-                    borderLeft: '3px solid #D4A84B',
-                    marginLeft: '-3px',
-                    paddingLeft: 'calc(0.75rem + 3px)'
-                  } : {}}
                 >
-                  <MessageSquare 
-                    className={`mt-0.5 h-4 w-4 flex-shrink-0 ${
-                      session.id === activeSessionId ? '' : 'text-gray-400'
-                    }`}
-                    style={session.id === activeSessionId ? { color: '#D4A84B' } : {}}
+                  {/* Active indicator */}
+                  {isActive && (
+                    <div 
+                      className="absolute left-0 top-1/2 h-[60%] w-[3px] -translate-y-1/2 rounded-r-sm"
+                      style={{ background: '#D4A84B' }}
+                    />
+                  )}
+                  <ChatIcon 
+                    className="mt-0.5 h-5 w-5 flex-shrink-0"
+                    style={{ color: isActive ? '#D4A84B' : '#9CA3AF' }}
                   />
                   <div className="min-w-0 flex-1">
-                    <p className={`truncate text-sm font-medium ${
-                      session.id === activeSessionId ? 'text-gray-900' : 'text-gray-700'
-                    }`}>
+                    <p className={`truncate text-sm font-medium ${isActive ? 'text-gray-900' : 'text-gray-700'}`}>
                       {session.title}
                     </p>
-                    <p className="truncate text-xs text-gray-400">
+                    <p className="mt-0.5 truncate text-xs text-gray-400">
                       {getSessionPreview(session)}
                     </p>
                   </div>
                 </button>
-              ))}
-            </div>
+              );
+            })}
           </div>
         </div>
       </aside>
 
       {/* Main Chat Area */}
       <main className="flex flex-1 items-center justify-center p-4 md:p-8">
-        {/* Floating Chat Card */}
-        <div className="flex h-[700px] w-full max-w-[800px] flex-col overflow-hidden rounded-3xl bg-white shadow-[0_8px_60px_-12px_rgba(0,0,0,0.12)]">
-          {/* Minimal Header */}
-          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-5 md:px-6">
-            {/* Mobile Menu Button */}
-            <button
+        
+        {/* Mobile Header (Fixed) */}
+        <div 
+          className="fixed left-0 right-0 top-0 z-40 border-b border-gray-100/50 md:hidden"
+          style={{
+            background: 'rgba(255, 255, 255, 0.85)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+          }}
+        >
+          <div className="flex items-center justify-between px-4 py-3">
+            <button 
               onClick={() => setSidebarOpen(true)}
-              className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 md:hidden"
+              className="rounded-xl p-2 transition-colors hover:bg-gray-100/50"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-5 w-5 text-gray-600" />
             </button>
-
-            <div className="flex items-center justify-center gap-2.5 md:flex-1">
+            <div className="flex items-center gap-2">
               <Image
                 src="/images/erik-avatar.png"
                 alt="Erik"
-                width={36}
-                height={36}
-                className="h-9 w-9 rounded-full object-cover"
+                width={32}
+                height={32}
+                className="h-8 w-8 rounded-full object-cover"
               />
-              <h1 className="text-lg font-semibold text-gray-900">Erik</h1>
+              <span className="font-semibold" style={{ color: '#D4A84B' }}>Erik</span>
             </div>
+            <div className="w-9" />
+          </div>
+        </div>
 
-            {/* Spacer for alignment */}
-            <div className="w-8 md:hidden" />
+        {/* Floating Chat Card */}
+        <div 
+          className="mt-16 flex h-[calc(100vh-6rem)] w-full max-w-[850px] flex-col overflow-hidden bg-white md:mt-0 md:h-[720px]"
+          style={{
+            borderRadius: '2rem',
+            boxShadow: '0 8px 60px -12px rgba(0, 0, 0, 0.1)',
+          }}
+        >
+          {/* Chat Header */}
+          <div className="flex items-center justify-between border-b border-gray-100/50 px-6 py-5 md:px-8">
+            <div className="flex items-center gap-3.5">
+              <div className="relative">
+                <Image
+                  src="/images/erik-avatar.png"
+                  alt="Erik"
+                  width={44}
+                  height={44}
+                  className="h-11 w-11 rounded-full object-cover shadow-sm"
+                />
+                {/* Online indicator */}
+                <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-emerald-400" />
+              </div>
+              <div>
+                <h1 className="font-semibold" style={{ color: '#D4A84B' }}>Erik</h1>
+                <p className="text-xs text-gray-400">Your personal assistant</p>
+              </div>
+            </div>
           </div>
 
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto px-6 py-6">
+          <div className="flex-1 overflow-y-auto px-6 py-6 md:px-8">
             <div className="flex flex-col gap-5">
               {messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`flex items-end gap-2.5 ${
+                  className={`flex items-end gap-3 ${
                     message.role === 'user' ? 'flex-row-reverse' : 'flex-row'
                   }`}
                 >
@@ -372,37 +448,43 @@ export default function ChatDashboard() {
                       alt="Erik"
                       width={32}
                       height={32}
-                      className="h-8 w-8 flex-shrink-0 rounded-full object-cover"
+                      className="h-8 w-8 flex-shrink-0 rounded-full object-cover shadow-sm"
                     />
                   )}
 
                   {/* Message Bubble */}
                   <div
-                    className={`max-w-[75%] rounded-2xl px-4 py-3 ${
+                    className={`max-w-[75%] px-5 py-3.5 ${
                       message.role === 'user'
-                        ? 'rounded-br-lg bg-gray-100 text-gray-900'
-                        : 'rounded-bl-lg text-gray-900'
+                        ? 'rounded-3xl rounded-br-lg bg-gray-100 text-gray-800'
+                        : 'rounded-3xl rounded-bl-lg border text-gray-800'
                     }`}
-                    style={message.role === 'assistant' ? { backgroundColor: '#D4A84B15' } : {}}
+                    style={message.role === 'assistant' ? { 
+                      background: 'linear-gradient(135deg, rgba(212, 168, 75, 0.06) 0%, rgba(212, 168, 75, 0.03) 100%)',
+                      borderColor: 'rgba(212, 168, 75, 0.15)',
+                    } : {}}
                   >
-                    <p className="text-[15px] leading-relaxed">{message.content}</p>
+                    <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{message.content}</p>
                   </div>
                 </div>
               ))}
 
               {/* Typing Indicator */}
               {isTyping && (
-                <div className="flex items-end gap-2.5">
+                <div className="flex items-end gap-3">
                   <Image
                     src="/images/erik-avatar.png"
                     alt="Erik"
                     width={32}
                     height={32}
-                    className="h-8 w-8 flex-shrink-0 rounded-full object-cover"
+                    className="h-8 w-8 flex-shrink-0 rounded-full object-cover shadow-sm"
                   />
                   <div 
-                    className="rounded-2xl rounded-bl-lg px-4 py-4"
-                    style={{ backgroundColor: '#D4A84B15' }}
+                    className="rounded-3xl rounded-bl-lg border px-5 py-4"
+                    style={{ 
+                      background: 'linear-gradient(135deg, rgba(212, 168, 75, 0.06) 0%, rgba(212, 168, 75, 0.03) 100%)',
+                      borderColor: 'rgba(212, 168, 75, 0.15)',
+                    }}
                   >
                     <div className="flex gap-1.5">
                       <span 
@@ -427,25 +509,30 @@ export default function ChatDashboard() {
           </div>
 
           {/* Input Area */}
-          <div className="border-t border-gray-100 px-5 py-5">
-            <div className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50/50 px-4 py-3 transition-all focus-within:border-amber-300 focus-within:bg-white focus-within:shadow-sm">
+          <div className="border-t border-gray-100/50 bg-gray-50/30 px-6 py-5 md:px-8">
+            <div 
+              className="flex items-center gap-3 rounded-2xl border border-gray-200/80 bg-white px-5 py-3 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.06)] transition-all focus-within:border-[#D4A84B]/40 focus-within:shadow-[0_4px_40px_-8px_rgba(0,0,0,0.08)] focus-within:ring-2 focus-within:ring-[#D4A84B]/10"
+            >
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
-                placeholder="Message..."
-                className="flex-1 bg-transparent text-[15px] text-gray-900 placeholder-gray-400 outline-none"
+                placeholder="Message Erik..."
+                className="flex-1 bg-transparent text-[15px] text-gray-800 placeholder-gray-400 outline-none"
               />
               <button
                 onClick={handleSend}
                 disabled={!input.trim()}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-white transition-all hover:opacity-90 disabled:opacity-30"
-                style={{ backgroundColor: '#D4A84B' }}
+                className="flex h-10 w-10 items-center justify-center rounded-full text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md disabled:opacity-30 disabled:hover:translate-y-0"
+                style={{ background: 'linear-gradient(135deg, #D4A84B 0%, #B8923F 100%)' }}
               >
-                <Send className="h-4 w-4" />
+                <SendIcon className="h-4 w-4" />
               </button>
             </div>
+            <p className="mt-3 text-center text-xs text-gray-400">
+              Erik can make mistakes. Consider checking important information.
+            </p>
           </div>
         </div>
       </main>
