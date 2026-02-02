@@ -18,15 +18,11 @@ export async function POST(request: NextRequest) {
       conversationId 
     } = await request.json();
 
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      );
-    }
+    // Use provided userId or fallback to anonymous session
+    const effectiveUserId = userId || 'anonymous-user';
 
     // Load user's memories
-    const memories = await getUserMemories(userId);
+    const memories = await getUserMemories(effectiveUserId);
     const memoryContext = formatMemoriesForPrompt(memories);
 
     // Get the latest user message
@@ -71,23 +67,45 @@ Don't interrogate - have a natural conversation. Pick up on details they share.
       content: msg.content,
     }));
 
-    // Call OpenAI
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...conversationHistory,
-        ],
-        max_tokens: 1000,
-        temperature: 0.7,
-      }),
-    });
+    // Use Clawdbot if configured, otherwise fall back to OpenAI
+    const useClawdbot = process.env.CLAWDBOT_GATEWAY_URL && process.env.CLAWDBOT_GATEWAY_TOKEN;
+    
+    let response;
+    if (useClawdbot) {
+      response = await fetch(`${process.env.CLAWDBOT_GATEWAY_URL}/v1/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.CLAWDBOT_GATEWAY_TOKEN}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...conversationHistory,
+          ],
+          max_tokens: 1000,
+          temperature: 0.7,
+        }),
+      });
+    } else {
+      response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...conversationHistory,
+          ],
+          max_tokens: 1000,
+          temperature: 0.7,
+        }),
+      });
+    }
 
     if (!response.ok) {
       const error = await response.json();
@@ -108,7 +126,7 @@ Don't interrogate - have a natural conversation. Pick up on details they share.
     }
 
     // Extract and save new memories (async, don't wait)
-    extractAndSaveMemories(userId, latestUserMessage, aiMessage, memories);
+    extractAndSaveMemories(effectiveUserId, latestUserMessage, aiMessage, memories);
 
     return NextResponse.json({ 
       message: aiMessage,

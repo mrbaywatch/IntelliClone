@@ -47,4 +47,4 @@ yarn-error.log*
 .contentlayer/
 
 # ts-node cache
-node-compile-cache/
+node-compile-cache/.env.local.backup

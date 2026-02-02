@@ -6,6 +6,7 @@ import { User, Plus, Menu, X, Trash2 } from 'lucide-react';
 
 import { ProfileAccountDropdownContainer } from '~/components/personal-account-dropdown-container';
 import { useLanguage } from '~/lib/language-context';
+import { useSupabase } from '@kit/supabase/hooks/use-supabase';
 
 interface MessageImage {
   name: string;
@@ -69,7 +70,20 @@ export default function ChatDashboard() {
     y: 0,
     sessionId: null,
   });
+  const [userId, setUserId] = useState<string | null>(null);
   const { language } = useLanguage();
+  const supabase = useSupabase();
+  
+  // Get current user on mount
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+      }
+    };
+    getUser();
+  }, [supabase]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -335,6 +349,7 @@ export default function ChatDashboard() {
             content: m.content,
           })),
           language,
+          userId,
         }),
       });
 

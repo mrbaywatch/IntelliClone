@@ -2,9 +2,6 @@ import Link from 'next/link';
 
 import { SignInMethodsContainer } from '@kit/auth/sign-in';
 import { getSafeRedirectPath } from '@kit/shared/utils';
-import { Button } from '@kit/ui/button';
-import { Heading } from '@kit/ui/heading';
-import { Trans } from '@kit/ui/trans';
 
 import authConfig from '~/config/auth.config';
 import pathsConfig from '~/config/paths.config';
@@ -35,31 +32,39 @@ async function SignInPage({ searchParams }: SignInPageProps) {
   };
 
   return (
-    <>
-      <div className={'flex flex-col items-center gap-1'}>
-        <Heading level={4} className={'tracking-tight'}>
-          <Trans i18nKey={'auth:signInHeading'} />
-        </Heading>
-
-        <p className={'text-muted-foreground text-sm'}>
-          <Trans i18nKey={'auth:signInSubheading'} />
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="text-center space-y-2">
+        <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
+          Welcome back
+        </h1>
+        <p className="text-gray-500 text-sm">
+          Sign in to continue to your account
         </p>
       </div>
 
-      <SignInMethodsContainer
-        paths={paths}
-        providers={authConfig.providers}
-        captchaSiteKey={authConfig.captchaTokenSiteKey}
-      />
-
-      <div className={'flex justify-center'}>
-        <Button asChild variant={'link'} size={'sm'}>
-          <Link href={pathsConfig.auth.signUp} prefetch={true}>
-            <Trans i18nKey={'auth:doNotHaveAccountYet'} />
-          </Link>
-        </Button>
+      {/* Sign in form */}
+      <div className="auth-form-clean">
+        <SignInMethodsContainer
+          paths={paths}
+          providers={authConfig.providers}
+          captchaSiteKey={authConfig.captchaTokenSiteKey}
+        />
       </div>
-    </>
+
+      {/* Footer link */}
+      <div className="text-center pt-2">
+        <span className="text-sm text-gray-500">
+          Don't have an account?{' '}
+          <Link 
+            href={pathsConfig.auth.signUp} 
+            className="text-gray-900 font-medium hover:underline"
+          >
+            Sign up
+          </Link>
+        </span>
+      </div>
+    </div>
   );
 }
 

@@ -53,7 +53,7 @@ const config = {
   reactCompiler: ENABLE_REACT_COMPILER,
   experimental: {
     mdxRs: true,
-    turbopackFileSystemCacheForDev: true,
+    turbopackFileSystemCacheForDev: false,
     optimizePackageImports: [
       'recharts',
       'lucide-react',

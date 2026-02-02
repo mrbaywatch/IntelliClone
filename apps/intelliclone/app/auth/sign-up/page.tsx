@@ -2,7 +2,6 @@ import Link from 'next/link';
 
 import { SignUpMethodsContainer } from '@kit/auth/sign-up';
 import { Button } from '@kit/ui/button';
-import { Heading } from '@kit/ui/heading';
 import { Trans } from '@kit/ui/trans';
 
 import authConfig from '~/config/auth.config';
@@ -25,32 +24,40 @@ const paths = {
 
 async function SignUpPage() {
   return (
-    <>
-      <div className={'flex flex-col items-center gap-1'}>
-        <Heading level={4} className={'tracking-tight'}>
-          <Trans i18nKey={'auth:signUpHeading'} />
-        </Heading>
-
-        <p className={'text-muted-foreground text-sm'}>
-          <Trans i18nKey={'auth:signUpSubheading'} />
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="text-center space-y-2">
+        <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
+          Create your account
+        </h1>
+        <p className="text-gray-500 text-sm">
+          Get started with your personal AI assistant
         </p>
       </div>
 
-      <SignUpMethodsContainer
-        providers={authConfig.providers}
-        displayTermsCheckbox={authConfig.displayTermsCheckbox}
-        paths={paths}
-        captchaSiteKey={authConfig.captchaTokenSiteKey}
-      />
-
-      <div className={'flex justify-center'}>
-        <Button asChild variant={'link'} size={'sm'}>
-          <Link href={pathsConfig.auth.signIn} prefetch={true}>
-            <Trans i18nKey={'auth:alreadyHaveAnAccount'} />
-          </Link>
-        </Button>
+      {/* Sign up form */}
+      <div className="auth-form-clean">
+        <SignUpMethodsContainer
+          providers={authConfig.providers}
+          displayTermsCheckbox={authConfig.displayTermsCheckbox}
+          paths={paths}
+          captchaSiteKey={authConfig.captchaTokenSiteKey}
+        />
       </div>
-    </>
+
+      {/* Footer link */}
+      <div className="text-center pt-2">
+        <span className="text-sm text-gray-500">
+          Already have an account?{' '}
+          <Link 
+            href={pathsConfig.auth.signIn} 
+            className="text-gray-900 font-medium hover:underline"
+          >
+            Sign in
+          </Link>
+        </span>
+      </div>
+    </div>
   );
 }
 
