@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
-  Send, Upload, FileText, Loader2, Trash2, 
-  Plus, FolderOpen, X, Menu, Moon, Sun
+  Send, Upload, FileText, Loader2, 
+  Plus, FolderOpen, Menu, Moon, Sun, Sparkles
 } from 'lucide-react';
 import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
@@ -49,6 +49,8 @@ export default function ParetoPage() {
   const [newProjectName, setNewProjectName] = useState('');
   const [darkMode, setDarkMode] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; projectId: string } | null>(null);
+  const [streamingText, setStreamingText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -60,7 +62,14 @@ export default function ParetoPage() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [activeProject?.pareto_messages]);
+  }, [activeProject?.pareto_messages, streamingText]);
+
+  // Close context menu on click outside
+  useEffect(() => {
+    const handleClick = () => setContextMenu(null);
+    window.addEventListener('click', handleClick);
+    return () => window.removeEventListener('click', handleClick);
+  }, []);
 
   // Auth check
   useEffect(() => {
@@ -138,6 +147,12 @@ export default function ParetoPage() {
     }
   };
 
+  // Context menu handler
+  const handleContextMenu = (e: React.MouseEvent, projectId: string) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, projectId });
+  };
+
   const createProject = async () => {
     if (!newProjectName.trim() || !user?.id) return;
     
@@ -181,6 +196,7 @@ export default function ParetoPage() {
     } catch (error) {
       console.error('Error deleting project:', error);
     }
+    setContextMenu(null);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -190,6 +206,20 @@ export default function ParetoPage() {
 
   const removeFile = (index: number) => {
     setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Simulate streaming effect
+  const simulateStreaming = async (fullText: string) => {
+    setStreamingText('');
+    const words = fullText.split(' ');
+    
+    for (let i = 0; i < words.length; i++) {
+      await new Promise(resolve => setTimeout(resolve, 20 + Math.random() * 30));
+      setStreamingText(words.slice(0, i + 1).join(' '));
+    }
+    
+    setStreamingText('');
+    return fullText;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -246,6 +276,9 @@ export default function ParetoPage() {
 
       const data = await response.json();
       
+      // Simulate streaming effect
+      await simulateStreaming(data.message);
+      
       // Save assistant message
       await fetch('/api/pareto/messages', {
         method: 'POST',
@@ -280,31 +313,56 @@ export default function ParetoPage() {
     }
   };
 
-  // Theme classes
+  // Premium theme with refined colors
   const theme = {
-    bg: darkMode ? 'bg-slate-950' : 'bg-slate-100',
-    sidebar: darkMode ? 'bg-slate-900' : 'bg-white border-r border-slate-200',
-    sidebarText: darkMode ? 'text-white' : 'text-slate-900',
-    sidebarMuted: darkMode ? 'text-slate-400' : 'text-slate-500',
-    sidebarBorder: darkMode ? 'border-slate-700' : 'border-slate-200',
-    sidebarHover: darkMode ? 'hover:bg-slate-800' : 'hover:bg-slate-100',
-    sidebarActive: darkMode ? 'bg-slate-700' : 'bg-blue-50 border border-blue-200',
-    input: darkMode ? 'bg-slate-800 border-slate-600' : 'bg-slate-100 border-slate-300',
-    header: darkMode ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200',
-    headerText: darkMode ? 'text-white' : 'text-slate-900',
-    chat: darkMode ? 'bg-slate-950' : 'bg-slate-50',
+    // Backgrounds
+    bg: darkMode ? 'bg-[#0a0a0f]' : 'bg-[#f8f9fa]',
+    sidebar: darkMode ? 'bg-[#111118]' : 'bg-white',
+    header: darkMode ? 'bg-[#111118]/80 backdrop-blur-xl' : 'bg-white/80 backdrop-blur-xl',
+    chat: darkMode ? 'bg-[#0a0a0f]' : 'bg-[#f8f9fa]',
+    inputArea: darkMode ? 'bg-[#111118]' : 'bg-white',
+    
+    // Text
+    text: darkMode ? 'text-white' : 'text-gray-900',
+    textMuted: darkMode ? 'text-gray-400' : 'text-gray-500',
+    textSubtle: darkMode ? 'text-gray-500' : 'text-gray-400',
+    
+    // Borders
+    border: darkMode ? 'border-white/[0.08]' : 'border-gray-200',
+    borderSubtle: darkMode ? 'border-white/[0.05]' : 'border-gray-100',
+    
+    // Interactive
+    hover: darkMode ? 'hover:bg-white/[0.05]' : 'hover:bg-gray-50',
+    active: darkMode ? 'bg-white/[0.08]' : 'bg-blue-50',
+    
+    // Messages
     userMsg: 'bg-blue-600 text-white',
-    assistantMsg: darkMode ? 'bg-slate-800 text-slate-100 border-slate-700' : 'bg-white text-slate-800 border-slate-200',
-    inputArea: darkMode ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200',
-    inputField: darkMode ? 'bg-slate-800 text-white placeholder-slate-400' : 'bg-slate-100 text-slate-900 placeholder-slate-500',
-    button: darkMode ? 'bg-slate-800 hover:bg-slate-700 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-700',
+    assistantMsg: darkMode 
+      ? 'bg-[#1a1a24] text-gray-100 border border-white/[0.08]' 
+      : 'bg-white text-gray-800 border border-gray-200 shadow-sm',
+    
+    // Inputs
+    input: darkMode 
+      ? 'bg-white/[0.05] border-white/[0.08] text-white placeholder-gray-500' 
+      : 'bg-gray-100 border-gray-200 text-gray-900 placeholder-gray-400',
+    
+    // Buttons
+    button: darkMode 
+      ? 'bg-white/[0.05] hover:bg-white/[0.1] text-white border border-white/[0.08]' 
+      : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200',
+    buttonPrimary: 'bg-blue-600 hover:bg-blue-700 text-white',
   };
 
   // Loading states
   if (userLoading || isFetching) {
     return (
-      <div className={`h-screen flex items-center justify-center ${theme.bg}`}>
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+      <div className={`h-screen flex flex-col items-center justify-center ${theme.bg} ${theme.text}`}>
+        <div className="relative">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+            <Sparkles className="w-8 h-8 text-white animate-pulse" />
+          </div>
+        </div>
+        <p className={`mt-6 text-sm ${theme.textMuted} animate-pulse`}>Laster inn...</p>
       </div>
     );
   }
@@ -314,22 +372,41 @@ export default function ParetoPage() {
   }
 
   return (
-    <div className={`h-screen flex ${theme.bg}`}>
+    <div className={`h-screen flex ${theme.bg} font-[-apple-system,BlinkMacSystemFont,sans-serif]`}>
+      {/* Context Menu */}
+      {contextMenu && (
+        <div 
+          className={`fixed z-50 py-1.5 rounded-xl shadow-xl ${darkMode ? 'bg-[#1a1a24] border border-white/10' : 'bg-white border border-gray-200'}`}
+          style={{ left: contextMenu.x, top: contextMenu.y, minWidth: '160px' }}
+          onClick={e => e.stopPropagation()}
+        >
+          <button
+            onClick={() => deleteProject(contextMenu.projectId)}
+            className={`w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-red-500/10 transition-colors`}
+          >
+            Slett prosjekt
+          </button>
+        </div>
+      )}
+
       {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'w-72' : 'w-0'} transition-all duration-300 ${theme.sidebar} flex flex-col overflow-hidden`}>
+      <div className={`${sidebarOpen ? 'w-72' : 'w-0'} transition-all duration-300 ease-out ${theme.sidebar} border-r ${theme.border} flex flex-col overflow-hidden`}>
         {/* Sidebar Header */}
-        <div className={`p-4 border-b ${theme.sidebarBorder}`}>
-          <div className="flex items-center gap-3">
-            <Image
-              src="/petter-avatar.jpg"
-              alt="Petter"
-              width={40}
-              height={40}
-              className="rounded-full"
-            />
+        <div className={`p-5 border-b ${theme.borderSubtle}`}>
+          <div className="flex items-center gap-3.5">
+            <div className="relative">
+              <Image
+                src="/petter-avatar.jpg"
+                alt="Petter"
+                width={44}
+                height={44}
+                className="rounded-full ring-2 ring-blue-500/20"
+              />
+              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-[#111118]" />
+            </div>
             <div>
-              <h1 className={`font-semibold ${theme.sidebarText}`}>Pareto-Petter</h1>
-              <p className={`text-xs ${theme.sidebarMuted}`}>Forsikringskontroll</p>
+              <h1 className={`font-semibold text-[15px] ${theme.text}`}>Pareto-Petter</h1>
+              <p className={`text-xs ${theme.textMuted}`}>Forsikringsrådgiver</p>
             </div>
           </div>
         </div>
@@ -337,26 +414,26 @@ export default function ParetoPage() {
         {/* New Project Button */}
         <div className="p-3">
           {showNewProject ? (
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <input
                 type="text"
                 value={newProjectName}
                 onChange={(e) => setNewProjectName(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && createProject()}
                 placeholder="Kundenavn..."
-                className={`w-full px-3 py-2 ${theme.input} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${theme.sidebarText}`}
+                className={`w-full px-3.5 py-2.5 ${theme.input} rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all`}
                 autoFocus
               />
               <div className="flex gap-2">
                 <button
                   onClick={createProject}
-                  className="flex-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
+                  className={`flex-1 px-3.5 py-2 ${theme.buttonPrimary} rounded-xl text-sm font-medium transition-all hover:shadow-lg hover:shadow-blue-500/25`}
                 >
                   Opprett
                 </button>
                 <button
                   onClick={() => { setShowNewProject(false); setNewProjectName(''); }}
-                  className={`px-3 py-1.5 ${theme.button} rounded-lg text-sm`}
+                  className={`px-3.5 py-2 ${theme.button} rounded-xl text-sm transition-all`}
                 >
                   Avbryt
                 </button>
@@ -365,7 +442,7 @@ export default function ParetoPage() {
           ) : (
             <button
               onClick={() => setShowNewProject(true)}
-              className={`w-full flex items-center gap-2 px-3 py-2.5 ${theme.button} rounded-lg text-sm font-medium transition-colors`}
+              className={`w-full flex items-center justify-center gap-2 px-3.5 py-3 ${theme.buttonPrimary} rounded-xl text-sm font-medium transition-all hover:shadow-lg hover:shadow-blue-500/25`}
             >
               <Plus className="w-4 h-4" />
               Nytt prosjekt
@@ -374,43 +451,44 @@ export default function ParetoPage() {
         </div>
 
         {/* Projects List */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-1">
-          <p className={`text-xs ${theme.sidebarMuted} uppercase tracking-wider mb-2 px-2`}>Prosjekter</p>
+        <div className="flex-1 overflow-y-auto px-3 pb-3">
+          <p className={`text-[11px] ${theme.textSubtle} uppercase tracking-wider font-medium mb-2 px-2`}>Prosjekter</p>
           {projects.length === 0 ? (
-            <p className={`text-sm ${theme.sidebarMuted} px-2`}>Ingen prosjekter ennå</p>
+            <p className={`text-sm ${theme.textMuted} px-2 py-4 text-center`}>Ingen prosjekter ennå</p>
           ) : (
-            projects.map(project => (
-              <div
-                key={project.id}
-                className={`group flex items-center gap-2 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${
-                  activeProjectId === project.id 
-                    ? theme.sidebarActive
-                    : theme.sidebarHover
-                } ${theme.sidebarText}`}
-                onClick={() => setActiveProjectId(project.id)}
-              >
-                <FolderOpen className="w-4 h-4 flex-shrink-0" />
-                <span className="flex-1 truncate text-sm">{project.name}</span>
-                <span className={`text-xs ${theme.sidebarMuted}`}>{project.pareto_documents?.length || 0}</span>
-                <button
-                  onClick={(e) => { e.stopPropagation(); deleteProject(project.id); }}
-                  className={`opacity-0 group-hover:opacity-100 p-1 ${theme.sidebarHover} rounded transition-opacity`}
+            <div className="space-y-1">
+              {projects.map(project => (
+                <div
+                  key={project.id}
+                  className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl cursor-pointer transition-all ${
+                    activeProjectId === project.id 
+                      ? theme.active
+                      : theme.hover
+                  } ${theme.text}`}
+                  onClick={() => setActiveProjectId(project.id)}
+                  onContextMenu={(e) => handleContextMenu(e, project.id)}
                 >
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
-            ))
+                  <FolderOpen className={`w-4 h-4 flex-shrink-0 ${activeProjectId === project.id ? 'text-blue-500' : theme.textMuted}`} />
+                  <span className="flex-1 truncate text-[13px] font-medium">{project.name}</span>
+                  {project.pareto_documents?.length > 0 && (
+                    <span className={`text-[11px] ${theme.textSubtle} tabular-nums`}>
+                      {project.pareto_documents.length}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
         {/* Sidebar Footer */}
-        <div className={`p-4 border-t ${theme.sidebarBorder} space-y-2`}>
-          <div className={`text-xs ${theme.sidebarMuted} text-center`}>
+        <div className={`p-4 border-t ${theme.borderSubtle}`}>
+          <div className={`text-[11px] ${theme.textSubtle} text-center mb-3 truncate`}>
             {user.email}
           </div>
           <button
             onClick={() => setDarkMode(!darkMode)}
-            className={`w-full flex items-center justify-center gap-2 px-3 py-2 ${theme.button} rounded-lg text-sm transition-colors`}
+            className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 ${theme.button} rounded-xl text-[13px] transition-all`}
           >
             {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             {darkMode ? 'Lys modus' : 'Mørk modus'}
@@ -419,29 +497,27 @@ export default function ParetoPage() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className={`${theme.header} border-b px-4 py-3 flex items-center gap-3`}>
+        <header className={`${theme.header} border-b ${theme.border} px-5 py-3.5 flex items-center gap-4`}>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className={`p-2 ${theme.button} rounded-lg transition-colors`}
+            className={`p-2 ${theme.hover} rounded-lg transition-all ${theme.text}`}
           >
             <Menu className="w-5 h-5" />
           </button>
           
           {activeProject ? (
-            <>
-              <div className="flex-1">
-                <h2 className={`font-semibold ${theme.headerText}`}>{activeProject.name}</h2>
-                <p className={`text-xs ${theme.sidebarMuted}`}>
-                  {activeProject.pareto_documents?.length || 0} dokumenter · {(activeProject.pareto_messages?.length || 1) - 1} meldinger
-                </p>
-              </div>
-            </>
+            <div className="flex-1 min-w-0">
+              <h2 className={`font-semibold text-[15px] ${theme.text} truncate`}>{activeProject.name}</h2>
+              <p className={`text-[11px] ${theme.textMuted}`}>
+                {activeProject.pareto_documents?.length || 0} dokumenter · {(activeProject.pareto_messages?.length || 1) - 1} meldinger
+              </p>
+            </div>
           ) : (
             <div className="flex-1">
-              <h2 className={`font-semibold ${theme.headerText}`}>Pareto-Petter</h2>
-              <p className={`text-xs ${theme.sidebarMuted}`}>Velg eller opprett et prosjekt</p>
+              <h2 className={`font-semibold text-[15px] ${theme.text}`}>Pareto-Petter</h2>
+              <p className={`text-[11px] ${theme.textMuted}`}>Velg eller opprett et prosjekt</p>
             </div>
           )}
         </header>
@@ -450,42 +526,42 @@ export default function ParetoPage() {
         {activeProject ? (
           <>
             <main 
-              className={`flex-1 overflow-y-auto px-4 py-6 ${theme.chat} relative`}
+              className={`flex-1 overflow-y-auto px-5 py-8 ${theme.chat} relative`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
             >
               {/* Drag overlay */}
               {isDragging && (
-                <div className="absolute inset-0 bg-blue-500/20 border-2 border-dashed border-blue-500 rounded-lg flex items-center justify-center z-10">
+                <div className="absolute inset-4 bg-blue-500/10 border-2 border-dashed border-blue-500 rounded-2xl flex items-center justify-center z-10 backdrop-blur-sm">
                   <div className="text-center">
-                    <Upload className="w-12 h-12 text-blue-500 mx-auto mb-2" />
-                    <p className="text-blue-600 font-medium">Slipp dokumenter her</p>
+                    <Upload className="w-10 h-10 text-blue-500 mx-auto mb-2" />
+                    <p className="text-blue-500 font-medium text-sm">Slipp dokumenter her</p>
                   </div>
                 </div>
               )}
-              <div className="max-w-3xl mx-auto space-y-4">
+              <div className="max-w-3xl mx-auto space-y-5">
                 {activeProject.pareto_messages?.map((message, index) => (
                   <div
                     key={message.id || index}
-                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}
                   >
                     <div
-                      className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                      className={`max-w-[85%] rounded-2xl px-4 py-3 ${
                         message.role === 'user'
                           ? theme.userMsg
-                          : `${theme.assistantMsg} border shadow-sm`
+                          : theme.assistantMsg
                       }`}
                     >
                       {message.files && message.files.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-2">
+                        <div className="flex flex-wrap gap-1.5 mb-2">
                           {message.files.map((file, i) => (
                             <span
                               key={i}
-                              className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs ${
+                              className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium ${
                                 message.role === 'user' 
-                                  ? 'bg-blue-500 text-white' 
-                                  : darkMode ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-600'
+                                  ? 'bg-white/20 text-white' 
+                                  : darkMode ? 'bg-white/10 text-gray-300' : 'bg-gray-100 text-gray-600'
                               }`}
                             >
                               <FileText className="w-3 h-3" />
@@ -494,7 +570,7 @@ export default function ParetoPage() {
                           ))}
                         </div>
                       )}
-                      <div className={`text-sm leading-relaxed prose prose-sm max-w-none ${
+                      <div className={`text-[14px] leading-relaxed prose prose-sm max-w-none ${
                         message.role === 'user' 
                           ? 'prose-invert' 
                           : darkMode ? 'prose-invert' : ''
@@ -503,37 +579,35 @@ export default function ParetoPage() {
                           remarkPlugins={[remarkGfm]}
                           components={{
                             table: ({children}) => (
-                              <table className={`border-collapse my-2 text-xs w-full ${
-                                darkMode ? 'border-slate-600' : 'border-slate-300'
-                              }`}>
+                              <table className={`border-collapse my-3 text-[12px] w-full rounded-lg overflow-hidden`}>
                                 {children}
                               </table>
                             ),
                             th: ({children}) => (
-                              <th className={`border px-2 py-1 text-left font-semibold ${
-                                darkMode ? 'border-slate-600 bg-slate-700' : 'border-slate-300 bg-slate-100'
+                              <th className={`border px-3 py-2 text-left font-semibold ${
+                                darkMode ? 'border-white/10 bg-white/5' : 'border-gray-200 bg-gray-50'
                               }`}>
                                 {children}
                               </th>
                             ),
                             td: ({children}) => (
-                              <td className={`border px-2 py-1 ${
-                                darkMode ? 'border-slate-600' : 'border-slate-300'
+                              <td className={`border px-3 py-2 ${
+                                darkMode ? 'border-white/10' : 'border-gray-200'
                               }`}>
                                 {children}
                               </td>
                             ),
                             p: ({children}) => <p className="mb-2 last:mb-0">{children}</p>,
-                            ul: ({children}) => <ul className="list-disc pl-4 mb-2">{children}</ul>,
-                            ol: ({children}) => <ol className="list-decimal pl-4 mb-2">{children}</ol>,
-                            li: ({children}) => <li className="mb-1">{children}</li>,
-                            hr: () => <hr className={`my-3 ${darkMode ? 'border-slate-600' : 'border-slate-300'}`} />,
-                            h2: ({children}) => <h2 className="font-bold text-base mt-3 mb-2">{children}</h2>,
-                            h3: ({children}) => <h3 className="font-semibold mt-2 mb-1">{children}</h3>,
+                            ul: ({children}) => <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>,
+                            ol: ({children}) => <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>,
+                            li: ({children}) => <li className="leading-relaxed">{children}</li>,
+                            hr: () => <hr className={`my-4 ${darkMode ? 'border-white/10' : 'border-gray-200'}`} />,
+                            h2: ({children}) => <h2 className="font-semibold text-[15px] mt-4 mb-2">{children}</h2>,
+                            h3: ({children}) => <h3 className="font-semibold text-[14px] mt-3 mb-1.5">{children}</h3>,
                             strong: ({children}) => <strong className="font-semibold">{children}</strong>,
                             code: ({children}) => (
-                              <code className={`px-1 rounded text-xs ${
-                                darkMode ? 'bg-slate-700' : 'bg-slate-200'
+                              <code className={`px-1.5 py-0.5 rounded text-[12px] ${
+                                darkMode ? 'bg-white/10' : 'bg-gray-100'
                               }`}>
                                 {children}
                               </code>
@@ -547,10 +621,30 @@ export default function ParetoPage() {
                   </div>
                 ))}
                 
-                {isLoading && (
-                  <div className="flex justify-start">
-                    <div className={`${theme.assistantMsg} border rounded-2xl px-4 py-3 shadow-sm`}>
-                      <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+                {/* Streaming message */}
+                {streamingText && (
+                  <div className="flex justify-start animate-in fade-in duration-200">
+                    <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${theme.assistantMsg}`}>
+                      <div className={`text-[14px] leading-relaxed ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>
+                        {streamingText}
+                        <span className="inline-block w-2 h-4 ml-0.5 bg-blue-500 animate-pulse rounded-sm" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Thinking indicator */}
+                {isLoading && !streamingText && (
+                  <div className="flex justify-start animate-in fade-in duration-200">
+                    <div className={`rounded-2xl px-4 py-3 ${theme.assistantMsg}`}>
+                      <div className="flex items-center gap-2">
+                        <div className="flex gap-1">
+                          <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                          <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                          <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                        </div>
+                        <span className={`text-[13px] ${theme.textMuted}`}>Petter tenker...</span>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -560,31 +654,31 @@ export default function ParetoPage() {
             </main>
 
             {/* Input Area */}
-            <div className={`${theme.inputArea} border-t p-4`}>
+            <div className={`${theme.inputArea} border-t ${theme.border} p-4`}>
               <div className="max-w-3xl mx-auto">
                 {uploadedFiles.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-3">
                     {uploadedFiles.map((file, index) => (
                       <span
                         key={index}
-                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm ${
-                          darkMode ? 'bg-slate-800 text-slate-200' : 'bg-slate-100 text-slate-700'
+                        className={`group inline-flex items-center gap-2 px-3 py-2 rounded-xl text-[13px] ${
+                          darkMode ? 'bg-white/5 text-gray-200 border border-white/10' : 'bg-gray-100 text-gray-700 border border-gray-200'
                         }`}
                       >
-                        <FileText className="w-4 h-4" />
+                        <FileText className="w-4 h-4 text-blue-500" />
                         <span className="max-w-[150px] truncate">{file.name}</span>
                         <button
                           onClick={() => removeFile(index)}
-                          className="text-slate-400 hover:text-red-500"
+                          className="opacity-50 hover:opacity-100 transition-opacity"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          ×
                         </button>
                       </span>
                     ))}
                   </div>
                 )}
                 
-                <form onSubmit={handleSubmit} className="flex gap-2">
+                <form onSubmit={handleSubmit} className="flex gap-3">
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -597,7 +691,7 @@ export default function ParetoPage() {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className={`p-3 ${theme.button} rounded-xl transition-colors`}
+                    className={`p-3 ${theme.button} rounded-xl transition-all`}
                     title="Last opp dokumenter"
                   >
                     <Upload className="w-5 h-5" />
@@ -614,9 +708,9 @@ export default function ParetoPage() {
                         }
                       }
                     }}
-                    placeholder="Skriv en melding... (Shift+Enter for nytt avsnitt)"
+                    placeholder="Skriv en melding..."
                     rows={1}
-                    className={`flex-1 px-4 py-3 ${theme.inputField} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none overflow-hidden`}
+                    className={`flex-1 px-4 py-3 ${theme.input} rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-[14px] resize-none overflow-hidden transition-all`}
                     style={{ minHeight: '48px', maxHeight: '200px' }}
                     onInput={(e) => {
                       const target = e.target as HTMLTextAreaElement;
@@ -628,29 +722,35 @@ export default function ParetoPage() {
                   <button
                     type="submit"
                     disabled={isLoading || (!input.trim() && uploadedFiles.length === 0)}
-                    className="p-3 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-500 text-white rounded-xl transition-colors"
+                    className={`p-3 ${theme.buttonPrimary} disabled:opacity-40 disabled:cursor-not-allowed rounded-xl transition-all hover:shadow-lg hover:shadow-blue-500/25`}
                   >
                     <Send className="w-5 h-5" />
                   </button>
                 </form>
+                
+                <p className={`text-[11px] ${theme.textSubtle} text-center mt-3`}>
+                  Shift + Enter for nytt avsnitt · Høyreklikk prosjekt for å slette
+                </p>
               </div>
             </div>
           </>
         ) : (
           /* Empty State */
           <div className={`flex-1 flex items-center justify-center ${theme.chat}`}>
-            <div className="text-center">
-              <div className={`w-16 h-16 ${darkMode ? 'bg-slate-800' : 'bg-slate-200'} rounded-2xl flex items-center justify-center mx-auto mb-4`}>
-                <FolderOpen className={`w-8 h-8 ${darkMode ? 'text-slate-600' : 'text-slate-400'}`} />
+            <div className="text-center max-w-md px-6">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-500/25">
+                <Sparkles className="w-10 h-10 text-white" />
               </div>
-              <h3 className={`font-semibold ${theme.headerText} mb-1`}>Ingen prosjekt valgt</h3>
-              <p className={`text-sm ${theme.sidebarMuted} mb-4`}>Opprett et nytt prosjekt for å starte</p>
+              <h3 className={`font-semibold text-xl ${theme.text} mb-2`}>Velkommen til Pareto-Petter</h3>
+              <p className={`text-[14px] ${theme.textMuted} mb-6 leading-relaxed`}>
+                Din AI-assistent for forsikringskontroll. Opprett et prosjekt for å komme i gang med å analysere dokumenter.
+              </p>
               <button
                 onClick={() => { setSidebarOpen(true); setShowNewProject(true); }}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                className={`px-6 py-3 ${theme.buttonPrimary} rounded-xl text-[14px] font-medium transition-all hover:shadow-lg hover:shadow-blue-500/25`}
               >
                 <Plus className="w-4 h-4 inline mr-2" />
-                Nytt prosjekt
+                Opprett nytt prosjekt
               </button>
             </div>
           </div>
