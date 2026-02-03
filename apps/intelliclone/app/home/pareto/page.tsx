@@ -4,12 +4,13 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Send, Upload, FileText, Loader2, 
-  Plus, FolderOpen, Menu, Moon, Sun, Sparkles
+  Plus, FolderOpen, Menu, Moon, Sun
 } from 'lucide-react';
 import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useUser } from '@kit/supabase/hooks/use-user';
+import { ParetoLogoSimple } from '~/components/pareto-logo';
 
 interface Message {
   id?: string;
@@ -241,7 +242,9 @@ export default function ParetoPage() {
     ));
     
     const currentInput = input;
+    const currentFiles = [...uploadedFiles]; // Save files before clearing
     setInput('');
+    setUploadedFiles([]); // Clear files immediately after sending
     setIsLoading(true);
 
     try {
@@ -265,7 +268,7 @@ export default function ParetoPage() {
       formData.append('message', currentInput);
       formData.append('projectName', activeProject.name);
       formData.append('history', JSON.stringify(activeProject.pareto_messages));
-      uploadedFiles.forEach(file => {
+      currentFiles.forEach(file => {
         formData.append('files', file);
       });
 
@@ -299,8 +302,6 @@ export default function ParetoPage() {
           ? { ...p, pareto_messages: [...p.pareto_messages, { role: 'assistant', content: data.message }] }
           : p
       ));
-      
-      setUploadedFiles([]);
     } catch (error) {
       console.error('Error:', error);
       setProjects(prev => prev.map(p => 
@@ -358,8 +359,8 @@ export default function ParetoPage() {
     return (
       <div className={`h-screen flex flex-col items-center justify-center ${theme.bg} ${theme.text}`}>
         <div className="relative">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
-            <Sparkles className="w-8 h-8 text-white animate-pulse" />
+          <div className="w-16 h-16 rounded-2xl bg-[#1e3a5f] flex items-center justify-center shadow-lg shadow-blue-900/25">
+            <ParetoLogoSimple className="w-9 h-9 animate-pulse" color="white" />
           </div>
         </div>
         <p className={`mt-6 text-sm ${theme.textMuted} animate-pulse`}>Laster inn...</p>
@@ -738,8 +739,8 @@ export default function ParetoPage() {
           /* Empty State */
           <div className={`flex-1 flex items-center justify-center ${theme.chat}`}>
             <div className="text-center max-w-md px-6">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-500/25">
-                <Sparkles className="w-10 h-10 text-white" />
+              <div className="w-20 h-20 rounded-2xl bg-[#1e3a5f] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-900/25">
+                <ParetoLogoSimple className="w-11 h-11" color="white" />
               </div>
               <h3 className={`font-semibold text-xl ${theme.text} mb-2`}>Velkommen til Pareto-Petter</h3>
               <p className={`text-[14px] ${theme.textMuted} mb-6 leading-relaxed`}>
