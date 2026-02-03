@@ -389,17 +389,32 @@ export default function ParetoPage() {
 
       {/* Sidebar */}
       <div className={`${sidebarOpen ? 'w-72' : 'w-0'} transition-all duration-300 ease-out ${theme.sidebar} border-r ${theme.border} flex flex-col overflow-hidden`}>
-        {/* Sidebar Header - Pareto Logo */}
-        <div className={`p-6 border-b ${theme.borderSubtle}`}>
-          <div className="flex flex-col items-center gap-3">
+        {/* Sidebar Header - Pareto Logo + Petter */}
+        <div className={`p-5 border-b ${theme.borderSubtle}`}>
+          <div className="flex flex-col items-center gap-4">
             <Image
               src="/pareto-logo.png"
               alt="Pareto"
-              width={120}
-              height={35}
+              width={130}
+              height={38}
               className={darkMode ? 'invert brightness-200' : ''}
             />
-            <p className={`text-xs ${theme.textMuted}`}>Dokumentkontroll</p>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Image
+                  src="/petter-avatar.jpg"
+                  alt="Petter"
+                  width={56}
+                  height={56}
+                  className="rounded-full ring-2 ring-blue-500/20"
+                />
+                <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#111118]" />
+              </div>
+              <div>
+                <h1 className={`font-semibold text-[15px] ${theme.text}`}>Petter</h1>
+                <p className={`text-xs ${theme.textMuted}`}>Dokumentkontroll</p>
+              </div>
+            </div>
           </div>
         </div>
 
