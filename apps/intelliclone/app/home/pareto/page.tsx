@@ -358,9 +358,7 @@ export default function ParetoPage() {
     return (
       <div className={`h-screen flex flex-col items-center justify-center ${theme.bg} ${theme.text}`}>
         <div className="relative">
-          <div className="w-16 h-16 rounded-2xl bg-[#1e3a5f] flex items-center justify-center shadow-lg shadow-blue-900/25 p-3">
-            <Image src="/pareto-icon.png" alt="Pareto" width={40} height={40} className="animate-pulse" />
-          </div>
+          <Image src="/pareto-logo.png" alt="Pareto" width={140} height={40} className="animate-pulse" />
         </div>
         <p className={`mt-6 text-sm ${theme.textMuted} animate-pulse`}>Laster inn...</p>
       </div>
@@ -391,23 +389,17 @@ export default function ParetoPage() {
 
       {/* Sidebar */}
       <div className={`${sidebarOpen ? 'w-72' : 'w-0'} transition-all duration-300 ease-out ${theme.sidebar} border-r ${theme.border} flex flex-col overflow-hidden`}>
-        {/* Sidebar Header */}
-        <div className={`p-5 border-b ${theme.borderSubtle}`}>
-          <div className="flex items-center gap-3.5">
-            <div className="relative">
-              <Image
-                src="/petter-avatar.jpg"
-                alt="Petter"
-                width={44}
-                height={44}
-                className="rounded-full ring-2 ring-blue-500/20"
-              />
-              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-[#111118]" />
-            </div>
-            <div>
-              <h1 className={`font-semibold text-[15px] ${theme.text}`}>Pareto-Petter</h1>
-              <p className={`text-xs ${theme.textMuted}`}>Forsikringsrådgiver</p>
-            </div>
+        {/* Sidebar Header - Pareto Logo */}
+        <div className={`p-6 border-b ${theme.borderSubtle}`}>
+          <div className="flex flex-col items-center gap-3">
+            <Image
+              src="/pareto-logo.png"
+              alt="Pareto"
+              width={120}
+              height={35}
+              className={darkMode ? 'invert brightness-200' : ''}
+            />
+            <p className={`text-xs ${theme.textMuted}`}>Dokumentkontroll</p>
           </div>
         </div>
 
@@ -738,19 +730,25 @@ export default function ParetoPage() {
           /* Empty State */
           <div className={`flex-1 flex items-center justify-center ${theme.chat}`}>
             <div className="text-center max-w-md px-6">
-              <div className="w-20 h-20 rounded-2xl bg-[#1e3a5f] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-900/25 p-4">
-                <Image src="/pareto-icon.png" alt="Pareto" width={48} height={48} />
+              <div className="mx-auto mb-8">
+                <Image 
+                  src="/pareto-logo.png" 
+                  alt="Pareto" 
+                  width={180} 
+                  height={52} 
+                  className={darkMode ? 'invert brightness-200' : ''}
+                />
               </div>
-              <h3 className={`font-semibold text-xl ${theme.text} mb-2`}>Velkommen til Pareto-Petter</h3>
+              <h3 className={`font-semibold text-xl ${theme.text} mb-2`}>Dokumentkontroll</h3>
               <p className={`text-[14px] ${theme.textMuted} mb-6 leading-relaxed`}>
-                Din AI-assistent for forsikringskontroll. Opprett et prosjekt for å komme i gang med å analysere dokumenter.
+                Kvalitetssikring av forsikringsavtaler. Opprett et prosjekt og last opp dokumenter for å starte analysen.
               </p>
               <button
                 onClick={() => { setSidebarOpen(true); setShowNewProject(true); }}
                 className={`px-6 py-3 ${theme.buttonPrimary} rounded-xl text-[14px] font-medium transition-all hover:shadow-lg hover:shadow-blue-500/25`}
               >
                 <Plus className="w-4 h-4 inline mr-2" />
-                Opprett nytt prosjekt
+                Nytt prosjekt
               </button>
             </div>
           </div>
