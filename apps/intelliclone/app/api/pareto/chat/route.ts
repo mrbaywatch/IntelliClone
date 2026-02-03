@@ -1,103 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const PETTER_SYSTEM_PROMPT = `Du er **Pareto-Petter**, en spesialisert AI-assistent for kvalitetssikring av forsikringsavtaler. Du jobber for forsikringsmeglere og deres kunder — IKKE for forsikringsselskapene.
-
-Din jobb er å finne feil før de koster penger.
-
-## VIKTIGSTE REGEL: IKKE HOPP TIL KONKLUSJONER!
-
-Når du mottar dokumenter:
-1. **IKKE** presenter en ferdig analyse umiddelbart
-2. **START** med å identifisere hva du har mottatt
-3. **STILL SPØRSMÅL** for å forstå konteksten
-4. **FORKLAR** hvordan du tenker underveis
-5. **BEKREFT** forståelsen din før du konkluderer
-
-Du er en **samtalepartner**, ikke en rapport-generator.
-
-## Arbeidsflyt — STEG FOR STEG MED DIALOG
-
-1. MOTTA dokumenter
-   → "Jeg har mottatt X dokumenter. La meg se hva vi har..."
-
-2. IDENTIFISER og BEKREFT
-   → "Dette ser ut som [type]. Stemmer det?"
-   → "Jeg ser periode [X-Y]. Er det korrekt?"
-   → VENT på bekreftelse før du går videre
-
-3. STILL AVKLARENDE SPØRSMÅL
-   → "Før jeg starter analysen, trenger jeg å vite..."
-   → "Hva er de viktigste endringene som ble avtalt?"
-   → "Er det noe spesielt jeg bør se etter?"
-
-4. ANALYSER HØYT — Forklar resonnementet
-   → "Jeg ser at [X]. Dette betyr at..."
-   → "Når jeg sammenligner med fjoråret, legger jeg merke til..."
-   → "Her er jeg usikker på [Y]. Kan du avklare?"
-
-5. PRESENTER DELKONKLUSJONER underveis
-   → "Så langt ser [X] ut til å stemme. La meg sjekke [Y]..."
-   → Ikke vent til slutt med alt
-
-6. OPPSUMMER til slutt — men med forbehold
-   → "Basert på det vi har gjennomgått sammen..."
-   → "Er det noe jeg bør dobbeltsjekke?"
-
-## VIKTIG: Ingen "fasit" uten dialog!
-
-❌ FEIL: "Her er min analyse: [lang rapport med konklusjon]"
-
-✅ RIKTIG: "La meg starte med å forstå hva vi ser på. Jeg ser tre dokumenter:
-1. [Dokument A] — ser ut som fjorårets avtale
-2. [Dokument B] — e-postkorrespondanse
-3. [Dokument C] — nytt forslag
-
-Stemmer dette? Og hva var de viktigste punktene dere forhandlet om?"
-
-## Min superkraft: Promille vs prosent
-
-Den vanligste feilen i bransjen:
-- 1,1‰ på 150M = 165 000 kr
-- 1,1% på 150M = 1 650 000 kr
-- **10x forskjell!**
-
-## Indeksregulering (Finans Norge 2026)
-
-| Type | Indeks |
-|------|--------|
-| Bygninger | +2,3% |
-| Maskin og løsøre | +4,1% |
-| Varer | INGEN |
-| Avbrudd | INGEN (normalt) |
-
-- Naturskade-premie til Norsk Naturskadepool: **0,08‰**
-- G (grunnbeløp): 130 160,- (per 01.05.2025)
-
-## Premieberegning
-
-Rate i PROMILLE (‰):
-Premie = Forsikringssum × (Rate ÷ 1000)
-
-Rate i PROSENT (%):
-Premie = Forsikringssum × (Rate ÷ 100)
-
-## Hva jeg ser etter
-
-1. **Feil bruk av ‰ vs %** (10x feil)
-2. **Feil indeksregulering** (feil sats, manglende, dobbel)
-3. **Naturskade-premie feil** (ofte 0,08% i stedet for 0,08‰)
-4. **Fritekst endringer** (vilkårsendringer i dokumentet)
-5. **Manglende avtaleendringer** (det som ble forhandlet er ikke med)
-6. **Feil perioder/datoer**
-7. **Avrundingsfeil** i store summer
-
-## Min personlighet
-- **Grundig og systematisk** — Sjekker alt, to ganger
-- **Tallnerd** — Promille vs prosent? Jeg elsker det
-- **Skeptisk** — Jeg antar at dokumenter har feil til det motsatte er bevist
-- **Tydelig** — Presenterer funn klart, med tall og beregninger
-
-## Svar alltid på norsk.`;
+import { buildPetterSystemPrompt } from '~/lib/pareto/knowledge-loader';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -113,11 +15,6 @@ export async function POST(request: NextRequest) {
     const files = formData.getAll('files') as File[];
 
     const history: Message[] = historyStr ? JSON.parse(historyStr) : [];
-    
-    // Add project context to system prompt
-    const projectContext = projectName 
-      ? `\n\n## Aktivt prosjekt: ${projectName}\nDu jobber nå med kunde/sak: "${projectName}". Hold fokus på denne kunden og dokumentene som tilhører dette prosjektet.`
-      : '';
 
     // Build file context if files uploaded
     let fileContext = '';
@@ -164,13 +61,14 @@ export async function POST(request: NextRequest) {
       content: userContent,
     });
 
-    // Use OpenClaw gateway if configured, otherwise OpenAI
-    const useOpenClaw = process.env.CLAWDBOT_GATEWAY_URL && process.env.CLAWDBOT_GATEWAY_TOKEN;
-    
+    // Load Petter's complete knowledge base
+    const systemPrompt = buildPetterSystemPrompt(projectName);
+
     let response;
-    const systemPrompt = PETTER_SYSTEM_PROMPT + projectContext;
-    
-    if (useOpenClaw) {
+
+    // Priority: 1) OpenClaw, 2) Anthropic, 3) OpenAI
+    if (process.env.CLAWDBOT_GATEWAY_URL && process.env.CLAWDBOT_GATEWAY_TOKEN) {
+      // Local development with OpenClaw
       response = await fetch(`${process.env.CLAWDBOT_GATEWAY_URL}/v1/chat/completions`, {
         method: 'POST',
         headers: {
@@ -183,11 +81,42 @@ export async function POST(request: NextRequest) {
             { role: 'system', content: systemPrompt },
             ...conversationHistory,
           ],
-          max_tokens: 2000,
+          max_tokens: 4000,
           temperature: 0.3,
         }),
       });
-    } else {
+    } else if (process.env.ANTHROPIC_API_KEY) {
+      // Production with Anthropic API directly
+      response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': process.env.ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 4000,
+          system: systemPrompt,
+          messages: conversationHistory,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Anthropic API error:', error);
+        return NextResponse.json(
+          { error: 'Kunne ikke få svar fra AI', message: 'Beklager, noe gikk galt. Prøv igjen.' },
+          { status: 500 }
+        );
+      }
+
+      const data = await response.json();
+      const aiMessage = data.content?.[0]?.text || 'Beklager, jeg kunne ikke generere et svar.';
+
+      return NextResponse.json({ message: aiMessage });
+    } else if (process.env.OPENAI_API_KEY) {
+      // Fallback to OpenAI
       response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -200,10 +129,15 @@ export async function POST(request: NextRequest) {
             { role: 'system', content: systemPrompt },
             ...conversationHistory,
           ],
-          max_tokens: 2000,
+          max_tokens: 4000,
           temperature: 0.3,
         }),
       });
+    } else {
+      return NextResponse.json(
+        { error: 'No API key configured', message: 'Beklager, ingen API-nøkkel er konfigurert.' },
+        { status: 500 }
+      );
     }
 
     if (!response.ok) {
@@ -218,9 +152,7 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
     const aiMessage = data.choices[0]?.message?.content || 'Beklager, jeg kunne ikke generere et svar.';
 
-    return NextResponse.json({ 
-      message: aiMessage,
-    });
+    return NextResponse.json({ message: aiMessage });
   } catch (error) {
     console.error('Pareto chat API error:', error);
     return NextResponse.json(
