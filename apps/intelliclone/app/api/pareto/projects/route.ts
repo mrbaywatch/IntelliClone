@@ -74,6 +74,37 @@ Jeg starter analysen så snart dokumentene er lastet opp.`
   }
 }
 
+// PATCH - Rename project
+export async function PATCH(request: NextRequest) {
+  try {
+    const userId = request.headers.get('x-user-id');
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const projectId = searchParams.get('id');
+    const { name } = await request.json();
+
+    if (!projectId) {
+      return NextResponse.json({ error: 'Project ID required' }, { status: 400 });
+    }
+
+    const { error } = await supabase
+      .from('pareto_projects')
+      .update({ name })
+      .eq('id', projectId)
+      .eq('user_id', userId);
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error renaming project:', error);
+    return NextResponse.json({ error: 'Failed to rename project' }, { status: 500 });
+  }
+}
+
 // DELETE - Delete project
 export async function DELETE(request: NextRequest) {
   try {

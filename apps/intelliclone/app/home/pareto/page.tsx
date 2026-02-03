@@ -50,6 +50,8 @@ export default function ParetoPage() {
   const [darkMode, setDarkMode] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; projectId: string } | null>(null);
+  const [renamingProjectId, setRenamingProjectId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
   const [streamingText, setStreamingText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -220,6 +222,36 @@ export default function ParetoPage() {
       console.error('Error deleting project:', error);
     }
     setContextMenu(null);
+  };
+
+  const startRenaming = (projectId: string) => {
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      setRenamingProjectId(projectId);
+      setRenameValue(project.name);
+    }
+    setContextMenu(null);
+  };
+
+  const renameProject = async () => {
+    if (!user?.id || !renamingProjectId || !renameValue.trim()) return;
+    
+    try {
+      await fetch(`/api/pareto/projects?id=${renamingProjectId}`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-user-id': user.id 
+        },
+        body: JSON.stringify({ name: renameValue.trim() })
+      });
+      
+      await fetchProjects();
+    } catch (error) {
+      console.error('Error renaming project:', error);
+    }
+    setRenamingProjectId(null);
+    setRenameValue('');
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -403,6 +435,12 @@ export default function ParetoPage() {
           onClick={e => e.stopPropagation()}
         >
           <button
+            onClick={() => startRenaming(contextMenu.projectId)}
+            className={`w-full px-4 py-2 text-left text-sm ${theme.text} ${theme.hover} transition-colors`}
+          >
+            Endre navn
+          </button>
+          <button
             onClick={() => deleteProject(contextMenu.projectId)}
             className={`w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-red-500/10 transition-colors`}
           >
@@ -478,12 +516,28 @@ export default function ParetoPage() {
                       ? theme.active
                       : theme.hover
                   } ${theme.text}`}
-                  onClick={() => setActiveProjectId(project.id)}
+                  onClick={() => renamingProjectId !== project.id && setActiveProjectId(project.id)}
                   onContextMenu={(e) => handleContextMenu(e, project.id)}
                 >
                   <FolderOpen className={`w-4 h-4 flex-shrink-0 ${activeProjectId === project.id ? 'text-blue-500' : theme.textMuted}`} />
-                  <span className="flex-1 truncate text-[13px] font-medium">{project.name}</span>
-                  {project.pareto_documents?.length > 0 && (
+                  {renamingProjectId === project.id ? (
+                    <input
+                      type="text"
+                      value={renameValue}
+                      onChange={(e) => setRenameValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') renameProject();
+                        if (e.key === 'Escape') { setRenamingProjectId(null); setRenameValue(''); }
+                      }}
+                      onBlur={renameProject}
+                      autoFocus
+                      className={`flex-1 px-2 py-1 text-[13px] font-medium rounded ${theme.input} focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  ) : (
+                    <span className="flex-1 truncate text-[13px] font-medium">{project.name}</span>
+                  )}
+                  {project.pareto_documents?.length > 0 && renamingProjectId !== project.id && (
                     <span className={`text-[11px] ${theme.textSubtle} tabular-nums`}>
                       {project.pareto_documents.length}
                     </span>
