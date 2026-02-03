@@ -37,27 +37,38 @@ Når jeg mottar dokumenter:
 
 ```
 1. MOTTA dokumenter → START LESING UMIDDELBART
+
+2. IDENTIFISER HVERT DOKUMENT (alltid først!)
+   → "Jeg har mottatt X dokumenter. La meg identifisere dem:"
+   → "Dokument 1 ([filnavn]): Dette er [type] - [kort beskrivelse]"
+   → "Dokument 2 ([filnavn]): Dette er [type] - [kort beskrivelse]"
    
-2. PRESENTER HVA JEG SER (konkret)
-   → "Jeg har lest dokumentene. Her er hva jeg finner:"
-   → "Forsikringstaker: [navn]"
-   → "Periode: [dato - dato]"
-   → "Forsikringssum: [beløp]"
-   → "Premie: [beløp]"
+   Eksempel:
+   → "Dokument 1 (policy.2026-01-07.pdf): Nytt fornyelsestilbud for 2026"
+   → "Dokument 2 (avtale_policy.2025-01-20.pdf): Gjeldende avtale fra 2025"
+   → "Dokument 3 (RE_KA_Rasmussen...pdf): E-postkorrespondanse om fornyelsen"
 
-3. ANALYSER OG SAMMENLIGN
-   → "Når jeg sammenligner avtale og fornyelse:"
-   → "• Punkt A: Avtalt X, dokumentert Y — [OK/AVVIK]"
-   → "• Punkt B: Avtalt X, dokumentert Y — [OK/AVVIK]"
+3. PRESENTER NØKKELINFO FRA HVERT DOKUMENT
+   → "Fra gjeldende avtale (2025):"
+   →   "Forsikringstaker: [navn]"
+   →   "Forsikringssum: [beløp]"
+   →   "Premie: [beløp]"
+   → "Fra fornyelsestilbudet (2026):"
+   →   "Forsikringssum: [beløp]"
+   →   "Premie: [beløp]"
+   → "Fra e-postkorrespondansen:"
+   →   "Avtalt: [punkter som ble forhandlet]"
 
-4. STILL SPESIFIKKE SPØRSMÅL (om nødvendig)
-   → "I e-posten ser jeg at dere avtalte [X], men i dokumentet står det [Y]. Hvilken er korrekt?"
-   → "Jeg finner ikke informasjon om [spesifikk ting]. Ble dette diskutert?"
+4. ANALYSER OG SAMMENLIGN
+   → "Når jeg sammenligner dokumentene:"
+   → "• [Punkt]: Avtale sier X, fornyelse sier Y — [OK/AVVIK]"
 
-5. KONKLUDER
+5. STILL SPESIFIKKE SPØRSMÅL (om nødvendig)
+   → "I e-posten ser jeg at dere avtalte [X], men fornyelsen viser [Y]. Stemmer dette?"
+
+6. KONKLUDER
    → Liste over funn som stemmer
    → Liste over avvik som må sjekkes
-   → Eventuelle mangler
 ```
 
 ## Kontrollpunkter — alt sjekkes

@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Send, Upload, FileText, Loader2, 
-  Plus, FolderOpen, Menu, Moon, Sun
+  Plus, FolderOpen, Menu, Moon, Sun, Download
 } from 'lucide-react';
 import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
@@ -53,6 +53,29 @@ export default function ParetoPage() {
   const [streamingText, setStreamingText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadedFilesCache = useRef<Map<string, File>>(new Map());
+
+  // Store files for later download
+  const cacheFiles = (files: File[]) => {
+    files.forEach(file => {
+      uploadedFilesCache.current.set(file.name, file);
+    });
+  };
+
+  // Download a cached file
+  const downloadFile = (fileName: string) => {
+    const file = uploadedFilesCache.current.get(fileName);
+    if (file) {
+      const url = URL.createObjectURL(file);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  };
 
   const activeProject = projects.find(p => p.id === activeProjectId);
 
@@ -242,6 +265,7 @@ export default function ParetoPage() {
     
     const currentInput = input;
     const currentFiles = [...uploadedFiles]; // Save files before clearing
+    cacheFiles(currentFiles); // Cache for download
     setInput('');
     setUploadedFiles([]); // Clear files immediately after sending
     setIsLoading(true);
@@ -562,19 +586,26 @@ export default function ParetoPage() {
                     >
                       {message.files && message.files.length > 0 && (
                         <div className="flex flex-wrap gap-1.5 mb-2">
-                          {message.files.map((file, i) => (
-                            <span
-                              key={i}
-                              className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium ${
-                                message.role === 'user' 
-                                  ? 'bg-white/20 text-white' 
-                                  : darkMode ? 'bg-white/10 text-gray-300' : 'bg-gray-100 text-gray-600'
-                              }`}
-                            >
-                              <FileText className="w-3 h-3" />
-                              {file.name}
-                            </span>
-                          ))}
+                          {message.files.map((file, i) => {
+                            const canDownload = uploadedFilesCache.current.has(file.name);
+                            return (
+                              <button
+                                key={i}
+                                onClick={() => canDownload && downloadFile(file.name)}
+                                disabled={!canDownload}
+                                className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${
+                                  message.role === 'user' 
+                                    ? 'bg-white/20 text-white hover:bg-white/30' 
+                                    : darkMode ? 'bg-white/10 text-gray-300 hover:bg-white/15' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                } ${canDownload ? 'cursor-pointer' : 'cursor-default opacity-70'}`}
+                                title={canDownload ? 'Klikk for å laste ned' : 'Fil ikke tilgjengelig for nedlasting'}
+                              >
+                                <FileText className="w-3 h-3" />
+                                <span className="max-w-[150px] truncate">{file.name}</span>
+                                {canDownload && <Download className="w-3 h-3 opacity-60" />}
+                              </button>
+                            );
+                          })}
                         </div>
                       )}
                       <div className={`text-[14px] leading-relaxed prose prose-sm max-w-none ${
