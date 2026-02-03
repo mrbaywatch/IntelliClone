@@ -10,7 +10,6 @@ import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useUser } from '@kit/supabase/hooks/use-user';
-import { ParetoLogoSimple } from '~/components/pareto-logo';
 
 interface Message {
   id?: string;
@@ -359,8 +358,8 @@ export default function ParetoPage() {
     return (
       <div className={`h-screen flex flex-col items-center justify-center ${theme.bg} ${theme.text}`}>
         <div className="relative">
-          <div className="w-16 h-16 rounded-2xl bg-[#1e3a5f] flex items-center justify-center shadow-lg shadow-blue-900/25">
-            <ParetoLogoSimple className="w-9 h-9 animate-pulse" color="white" />
+          <div className="w-16 h-16 rounded-2xl bg-[#1e3a5f] flex items-center justify-center shadow-lg shadow-blue-900/25 p-3">
+            <Image src="/pareto-icon.png" alt="Pareto" width={40} height={40} className="animate-pulse" />
           </div>
         </div>
         <p className={`mt-6 text-sm ${theme.textMuted} animate-pulse`}>Laster inn...</p>
@@ -739,8 +738,8 @@ export default function ParetoPage() {
           /* Empty State */
           <div className={`flex-1 flex items-center justify-center ${theme.chat}`}>
             <div className="text-center max-w-md px-6">
-              <div className="w-20 h-20 rounded-2xl bg-[#1e3a5f] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-900/25">
-                <ParetoLogoSimple className="w-11 h-11" color="white" />
+              <div className="w-20 h-20 rounded-2xl bg-[#1e3a5f] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-900/25 p-4">
+                <Image src="/pareto-icon.png" alt="Pareto" width={48} height={48} />
               </div>
               <h3 className={`font-semibold text-xl ${theme.text} mb-2`}>Velkommen til Pareto-Petter</h3>
               <p className={`text-[14px] ${theme.textMuted} mb-6 leading-relaxed`}>
