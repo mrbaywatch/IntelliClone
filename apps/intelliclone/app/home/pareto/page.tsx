@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Send, Upload, FileText, Loader2, Trash2, 
@@ -12,20 +12,29 @@ import remarkGfm from 'remark-gfm';
 import { useUser } from '@kit/supabase/hooks/use-user';
 
 interface Message {
+  id?: string;
   role: 'user' | 'assistant';
   content: string;
   files?: { name: string; type: string }[];
+  created_at?: string;
+}
+
+interface Document {
+  id: string;
+  name: string;
+  file_type: string;
+  file_size: number;
 }
 
 interface Project {
   id: string;
   name: string;
-  createdAt: Date;
-  documents: { name: string; type: string; size: number }[];
-  messages: Message[];
+  created_at: string;
+  pareto_documents: Document[];
+  pareto_messages: Message[];
 }
 
-export default function ParetoDemoPage() {
+export default function ParetoPage() {
   const router = useRouter();
   const { data: user, isLoading: userLoading } = useUser();
   
@@ -33,26 +42,7 @@ export default function ParetoDemoPage() {
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  // Auth check - redirect if not logged in
-  useEffect(() => {
-    if (!userLoading && !user) {
-      router.push('/auth/sign-in');
-    }
-  }, [user, userLoading, router]);
-
-  // Show loading while checking auth
-  if (userLoading) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-slate-950">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null; // Will redirect
-  }
+  const [isFetching, setIsFetching] = useState(true);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showNewProject, setShowNewProject] = useState(false);
@@ -63,6 +53,62 @@ export default function ParetoDemoPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const activeProject = projects.find(p => p.id === activeProjectId);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [activeProject?.pareto_messages]);
+
+  // Auth check
+  useEffect(() => {
+    if (!userLoading && !user) {
+      router.push('/auth/sign-in');
+    }
+  }, [user, userLoading, router]);
+
+  // Fetch projects from Supabase
+  const fetchProjects = useCallback(async () => {
+    if (!user?.id) return;
+    
+    try {
+      const res = await fetch('/api/pareto/projects', {
+        headers: { 'x-user-id': user.id }
+      });
+      const data = await res.json();
+      
+      if (data.projects) {
+        setProjects(data.projects);
+        if (data.projects.length > 0 && !activeProjectId) {
+          setActiveProjectId(data.projects[0].id);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+    } finally {
+      setIsFetching(false);
+    }
+  }, [user?.id, activeProjectId]);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchProjects();
+    }
+  }, [user?.id, fetchProjects]);
+
+  // Save theme preference
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('pareto-theme');
+    if (savedTheme) {
+      setDarkMode(savedTheme === 'dark');
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('pareto-theme', darkMode ? 'dark' : 'light');
+  }, [darkMode]);
 
   // Drag and drop handlers
   const handleDragOver = (e: React.DragEvent) => {
@@ -89,113 +135,57 @@ export default function ParetoDemoPage() {
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
       setUploadedFiles(prev => [...prev, ...files]);
+    }
+  };
+
+  const createProject = async () => {
+    if (!newProjectName.trim() || !user?.id) return;
+    
+    try {
+      const res = await fetch('/api/pareto/projects', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-user-id': user.id 
+        },
+        body: JSON.stringify({ name: newProjectName.trim() })
+      });
       
-      // Add to project documents
-      const newDocs = files.map(f => ({ 
-        name: f.name, 
-        type: f.type, 
-        size: f.size 
-      }));
-      setProjects(prev => prev.map(p => 
-        p.id === activeProjectId 
-          ? { ...p, documents: [...p.documents, ...newDocs] }
-          : p
-      ));
-    }
-  };
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [activeProject?.messages]);
-
-  // Load projects and theme from localStorage
-  useEffect(() => {
-    const savedProjects = localStorage.getItem('pareto-projects');
-    const savedTheme = localStorage.getItem('pareto-theme');
-    
-    if (savedProjects) {
-      const parsed = JSON.parse(savedProjects);
-      setProjects(parsed.map((p: Project) => ({
-        ...p,
-        createdAt: new Date(p.createdAt)
-      })));
-      if (parsed.length > 0 && !activeProjectId) {
-        setActiveProjectId(parsed[0].id);
+      const data = await res.json();
+      if (data.project) {
+        await fetchProjects();
+        setActiveProjectId(data.project.id);
       }
+    } catch (error) {
+      console.error('Error creating project:', error);
     }
     
-    if (savedTheme) {
-      setDarkMode(savedTheme === 'dark');
-    }
-  }, []);
-
-  // Save projects to localStorage
-  useEffect(() => {
-    if (projects.length > 0) {
-      localStorage.setItem('pareto-projects', JSON.stringify(projects));
-    }
-  }, [projects]);
-
-  // Save theme to localStorage
-  useEffect(() => {
-    localStorage.setItem('pareto-theme', darkMode ? 'dark' : 'light');
-  }, [darkMode]);
-
-  const createProject = () => {
-    if (!newProjectName.trim()) return;
-    
-    const newProject: Project = {
-      id: Date.now().toString(),
-      name: newProjectName.trim(),
-      createdAt: new Date(),
-      documents: [],
-      messages: [{
-        role: 'assistant',
-        content: `Hei! 👋 Jeg er klar til å hjelpe deg med **${newProjectName.trim()}**.
-
-Last opp dokumentene du vil at jeg skal sjekke:
-- Forsikringsbevis / fornyelsesforslag
-- E-postkorrespondanse med avtaleendringer  
-- Fjorårets avtale (for sammenligning)
-
-Jeg går gjennom alt steg for steg sammen med deg! 📊`
-      }]
-    };
-    
-    setProjects(prev => [newProject, ...prev]);
-    setActiveProjectId(newProject.id);
     setNewProjectName('');
     setShowNewProject(false);
   };
 
-  const deleteProject = (id: string) => {
-    setProjects(prev => prev.filter(p => p.id !== id));
-    if (activeProjectId === id) {
-      const remaining = projects.filter(p => p.id !== id);
-      setActiveProjectId(remaining.length > 0 ? remaining[0].id : null);
+  const deleteProject = async (id: string) => {
+    if (!user?.id) return;
+    
+    try {
+      await fetch(`/api/pareto/projects?id=${id}`, {
+        method: 'DELETE',
+        headers: { 'x-user-id': user.id }
+      });
+      
+      await fetchProjects();
+      if (activeProjectId === id) {
+        const remaining = projects.filter(p => p.id !== id);
+        setActiveProjectId(remaining.length > 0 ? remaining[0].id : null);
+      }
+    } catch (error) {
+      console.error('Error deleting project:', error);
     }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     setUploadedFiles(prev => [...prev, ...files]);
-    
-    if (activeProject) {
-      const newDocs = files.map(f => ({ 
-        name: f.name, 
-        type: f.type, 
-        size: f.size 
-      }));
-      setProjects(prev => prev.map(p => 
-        p.id === activeProjectId 
-          ? { ...p, documents: [...p.documents, ...newDocs] }
-          : p
-      ));
-    }
   };
 
   const removeFile = (index: number) => {
@@ -205,7 +195,7 @@ Jeg går gjennom alt steg for steg sammen med deg! 📊`
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() && uploadedFiles.length === 0) return;
-    if (!activeProject) return;
+    if (!activeProject || !user?.id) return;
 
     const userMessage: Message = {
       role: 'user',
@@ -213,20 +203,38 @@ Jeg går gjennom alt steg for steg sammen med deg! 📊`
       files: uploadedFiles.map(f => ({ name: f.name, type: f.type }))
     };
 
+    // Optimistically update UI
     setProjects(prev => prev.map(p => 
       p.id === activeProjectId 
-        ? { ...p, messages: [...p.messages, userMessage] }
+        ? { ...p, pareto_messages: [...p.pareto_messages, userMessage] }
         : p
     ));
     
+    const currentInput = input;
     setInput('');
     setIsLoading(true);
 
     try {
+      // Save user message
+      await fetch('/api/pareto/messages', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-user-id': user.id 
+        },
+        body: JSON.stringify({
+          projectId: activeProjectId,
+          role: 'user',
+          content: userMessage.content,
+          files: userMessage.files
+        })
+      });
+
+      // Get AI response
       const formData = new FormData();
-      formData.append('message', input);
+      formData.append('message', currentInput);
       formData.append('projectName', activeProject.name);
-      formData.append('history', JSON.stringify(activeProject.messages));
+      formData.append('history', JSON.stringify(activeProject.pareto_messages));
       uploadedFiles.forEach(file => {
         formData.append('files', file);
       });
@@ -238,9 +246,24 @@ Jeg går gjennom alt steg for steg sammen med deg! 📊`
 
       const data = await response.json();
       
+      // Save assistant message
+      await fetch('/api/pareto/messages', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-user-id': user.id 
+        },
+        body: JSON.stringify({
+          projectId: activeProjectId,
+          role: 'assistant',
+          content: data.message
+        })
+      });
+
+      // Update UI with assistant message
       setProjects(prev => prev.map(p => 
         p.id === activeProjectId 
-          ? { ...p, messages: [...p.messages, { role: 'assistant', content: data.message }] }
+          ? { ...p, pareto_messages: [...p.pareto_messages, { role: 'assistant', content: data.message }] }
           : p
       ));
       
@@ -249,7 +272,7 @@ Jeg går gjennom alt steg for steg sammen med deg! 📊`
       console.error('Error:', error);
       setProjects(prev => prev.map(p => 
         p.id === activeProjectId 
-          ? { ...p, messages: [...p.messages, { role: 'assistant', content: 'Beklager, noe gikk galt. Prøv igjen.' }] }
+          ? { ...p, pareto_messages: [...p.pareto_messages, { role: 'assistant', content: 'Beklager, noe gikk galt. Prøv igjen.' }] }
           : p
       ));
     } finally {
@@ -276,6 +299,19 @@ Jeg går gjennom alt steg for steg sammen med deg! 📊`
     inputField: darkMode ? 'bg-slate-800 text-white placeholder-slate-400' : 'bg-slate-100 text-slate-900 placeholder-slate-500',
     button: darkMode ? 'bg-slate-800 hover:bg-slate-700 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-700',
   };
+
+  // Loading states
+  if (userLoading || isFetching) {
+    return (
+      <div className={`h-screen flex items-center justify-center ${theme.bg}`}>
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className={`h-screen flex ${theme.bg}`}>
@@ -355,7 +391,7 @@ Jeg går gjennom alt steg for steg sammen med deg! 📊`
               >
                 <FolderOpen className="w-4 h-4 flex-shrink-0" />
                 <span className="flex-1 truncate text-sm">{project.name}</span>
-                <span className={`text-xs ${theme.sidebarMuted}`}>{project.documents.length}</span>
+                <span className={`text-xs ${theme.sidebarMuted}`}>{project.pareto_documents?.length || 0}</span>
                 <button
                   onClick={(e) => { e.stopPropagation(); deleteProject(project.id); }}
                   className={`opacity-0 group-hover:opacity-100 p-1 ${theme.sidebarHover} rounded transition-opacity`}
@@ -368,7 +404,10 @@ Jeg går gjennom alt steg for steg sammen med deg! 📊`
         </div>
 
         {/* Sidebar Footer */}
-        <div className={`p-4 border-t ${theme.sidebarBorder}`}>
+        <div className={`p-4 border-t ${theme.sidebarBorder} space-y-2`}>
+          <div className={`text-xs ${theme.sidebarMuted} text-center`}>
+            {user.email}
+          </div>
           <button
             onClick={() => setDarkMode(!darkMode)}
             className={`w-full flex items-center justify-center gap-2 px-3 py-2 ${theme.button} rounded-lg text-sm transition-colors`}
@@ -395,12 +434,9 @@ Jeg går gjennom alt steg for steg sammen med deg! 📊`
               <div className="flex-1">
                 <h2 className={`font-semibold ${theme.headerText}`}>{activeProject.name}</h2>
                 <p className={`text-xs ${theme.sidebarMuted}`}>
-                  {activeProject.documents.length} dokumenter · {activeProject.messages.length - 1} meldinger
+                  {activeProject.pareto_documents?.length || 0} dokumenter · {(activeProject.pareto_messages?.length || 1) - 1} meldinger
                 </p>
               </div>
-              <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded">
-                DEMO
-              </span>
             </>
           ) : (
             <div className="flex-1">
@@ -429,9 +465,9 @@ Jeg går gjennom alt steg for steg sammen med deg! 📊`
                 </div>
               )}
               <div className="max-w-3xl mx-auto space-y-4">
-                {activeProject.messages.map((message, index) => (
+                {activeProject.pareto_messages?.map((message, index) => (
                   <div
-                    key={index}
+                    key={message.id || index}
                     className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
