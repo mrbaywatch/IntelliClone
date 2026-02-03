@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   Send, Upload, FileText, Loader2, Trash2, 
   Plus, FolderOpen, X, Menu, Moon, Sun
@@ -8,6 +9,7 @@ import {
 import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { useUser } from '@kit/supabase/hooks/use-user';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -24,10 +26,33 @@ interface Project {
 }
 
 export default function ParetoDemoPage() {
+  const router = useRouter();
+  const { data: user, isLoading: userLoading } = useUser();
+  
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Auth check - redirect if not logged in
+  useEffect(() => {
+    if (!userLoading && !user) {
+      router.push('/auth/sign-in');
+    }
+  }, [user, userLoading, router]);
+
+  // Show loading while checking auth
+  if (userLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-slate-950">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect
+  }
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showNewProject, setShowNewProject] = useState(false);

@@ -1,0 +1,15 @@
+# Turbo cache (very large)
+.turbo/
+
+# Node modules (Vercel installs its own)
+node_modules/
+
+# Local env files
+.env*.local
+
+# Git
+.git/
+
+# IDE
+.idea/
+.vscode/
