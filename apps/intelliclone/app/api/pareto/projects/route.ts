@@ -56,14 +56,14 @@ export async function POST(request: NextRequest) {
       project_id: project.id,
       user_id: userId,
       role: 'assistant',
-      content: `Hei! 👋 Jeg er klar til å hjelpe deg med **${name}**.
+      content: `Klar for **${name}**. 📋
 
-Last opp dokumentene du vil at jeg skal sjekke:
-- Forsikringsbevis / fornyelsesforslag
-- E-postkorrespondanse med avtaleendringer  
-- Fjorårets avtale (for sammenligning)
+Last opp dokumentene — jeg starter analysen med én gang:
+• Fornyelsestilbud / forsikringsbevis
+• E-postkorrespondanse (avtaleendringer)
+• Gjeldende avtale (for sammenligning)
 
-Jeg går gjennom alt steg for steg sammen med deg! 📊`
+Jeg sjekker alt: summer, premier, rater, vilkår, egenandeler.`
     });
 
     return NextResponse.json({ project });
