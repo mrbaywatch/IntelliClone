@@ -8,6 +8,10 @@ import {
   createConversation,
   Memory,
 } from '~/lib/memory-service';
+import {
+  getUserLibrary,
+  formatLibraryForPrompt,
+} from '~/lib/library-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,9 +25,13 @@ export async function POST(request: NextRequest) {
     // Use provided userId or fallback to anonymous session
     const effectiveUserId = userId || 'anonymous-user';
 
-    // Load user's memories
-    const memories = await getUserMemories(effectiveUserId);
+    // Load user's memories and library
+    const [memories, libraryItems] = await Promise.all([
+      getUserMemories(effectiveUserId),
+      getUserLibrary(effectiveUserId),
+    ]);
     const memoryContext = formatMemoriesForPrompt(memories);
+    const libraryContext = formatLibraryForPrompt(libraryItems);
 
     // Get the latest user message
     const latestUserMessage = messages[messages.length - 1]?.content || '';
@@ -39,6 +47,7 @@ ${languageInstruction}
 
 ## What You Know About This User:
 ${memoryContext}
+${libraryContext}
 
 ## Your Personality:
 - Warm, conversational, and genuinely curious

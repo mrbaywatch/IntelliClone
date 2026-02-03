@@ -2,11 +2,13 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { User, Plus, Menu, X, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+import { User, Plus, Menu, X, Trash2, FolderOpen, Brain } from 'lucide-react';
 
 import { ProfileAccountDropdownContainer } from '~/components/personal-account-dropdown-container';
 import { useLanguage } from '~/lib/language-context';
 import { useSupabase } from '@kit/supabase/hooks/use-supabase';
+import OnboardingModal from '~/components/onboarding/OnboardingModal';
 
 interface MessageImage {
   name: string;
@@ -71,15 +73,21 @@ export default function ChatDashboard() {
     sessionId: null,
   });
   const [userId, setUserId] = useState<string | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const { language } = useLanguage();
   const supabase = useSupabase();
   
-  // Get current user on mount
+  // Get current user on mount and check onboarding status
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUserId(user.id);
+        // Check if onboarding is complete
+        const onboardingComplete = localStorage.getItem(`onboarding_complete_${user.id}`);
+        if (!onboardingComplete) {
+          setShowOnboarding(true);
+        }
       }
     };
     getUser();
@@ -400,6 +408,14 @@ export default function ChatDashboard() {
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-[#212121]">
+      {/* Onboarding Modal */}
+      {showOnboarding && userId && (
+        <OnboardingModal 
+          userId={userId} 
+          onComplete={() => setShowOnboarding(false)} 
+        />
+      )}
+
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <div 
@@ -439,7 +455,7 @@ export default function ChatDashboard() {
           </div>
 
           {/* New Chat Button */}
-          <div className="p-4">
+          <div className="p-4 space-y-2">
             <button
               onClick={handleNewChat}
               className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-gray-600 dark:hover:bg-gray-700"
@@ -447,6 +463,24 @@ export default function ChatDashboard() {
               <Plus className="h-4 w-4" />
               {language === 'no' ? 'Ny chat' : 'New Chat'}
             </button>
+            
+            {/* Navigation Links */}
+            <div className="flex gap-2">
+              <Link
+                href="/home/library"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-600 transition-all hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:bg-gray-700"
+              >
+                <FolderOpen className="h-4 w-4" />
+                {language === 'no' ? 'Bibliotek' : 'Library'}
+              </Link>
+              <Link
+                href="/home/memory"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-600 transition-all hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 dark:hover:bg-gray-700"
+              >
+                <Brain className="h-4 w-4" />
+                {language === 'no' ? 'Minner' : 'Memory'}
+              </Link>
+            </div>
           </div>
 
           {/* Sessions Label */}

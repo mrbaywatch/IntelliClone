@@ -14,26 +14,7 @@ import { Trans } from '@kit/ui/trans';
 import { SiteNavigationItem } from './site-navigation-item';
 
 const links = {
-  Blog: {
-    label: 'marketing:blog',
-    path: '/blog',
-  },
-  Changelog: {
-    label: 'marketing:changelog',
-    path: '/changelog',
-  },
-  Docs: {
-    label: 'marketing:documentation',
-    path: '/docs',
-  },
-  Pricing: {
-    label: 'marketing:pricing',
-    path: '/pricing',
-  },
-  FAQ: {
-    label: 'marketing:faq',
-    path: '/faq',
-  },
+  // Navigation links removed - IntelliClone-specific pages TBD
 };
 
 export function SiteNavigation() {
