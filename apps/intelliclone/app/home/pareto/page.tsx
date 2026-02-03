@@ -413,9 +413,9 @@ export default function ParetoPage() {
 
       {/* Sidebar */}
       <div className={`${sidebarOpen ? 'w-72' : 'w-0'} transition-all duration-300 ease-out ${theme.sidebar} border-r ${theme.border} flex flex-col overflow-hidden`}>
-        {/* Sidebar Header - Pareto Logo + Petter */}
-        <div className={`p-5 border-b ${theme.borderSubtle}`}>
-          <div className="flex flex-col items-center gap-4">
+        {/* Sidebar Header - Pareto Logo */}
+        <div className={`p-6 border-b ${theme.borderSubtle}`}>
+          <div className="flex justify-center">
             <Image
               src="/pareto-logo.png"
               alt="Pareto"
@@ -423,22 +423,6 @@ export default function ParetoPage() {
               height={38}
               className={darkMode ? 'invert brightness-200' : ''}
             />
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <Image
-                  src="/petter-avatar.jpg"
-                  alt="Petter"
-                  width={56}
-                  height={56}
-                  className="rounded-full ring-2 ring-blue-500/20"
-                />
-                <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#111118]" />
-              </div>
-              <div>
-                <h1 className={`font-semibold text-[15px] ${theme.text}`}>Petter</h1>
-                <p className={`text-xs ${theme.textMuted}`}>Dokumentkontroll</p>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -681,7 +665,7 @@ export default function ParetoPage() {
                           <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                           <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                         </div>
-                        <span className={`text-[13px] ${theme.textMuted}`}>Petter tenker...</span>
+                        <span className={`text-[13px] ${theme.textMuted}`}>Analyserer...</span>
                       </div>
                     </div>
                   </div>
