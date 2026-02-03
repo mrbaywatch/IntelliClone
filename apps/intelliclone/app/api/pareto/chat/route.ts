@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
           'Authorization': `Bearer ${process.env.CLAWDBOT_GATEWAY_TOKEN}`,
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-5',
+          model: 'claude-opus-4-5',
           messages: [
             { role: 'system', content: systemPrompt },
             ...conversationHistory,
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
           'anthropic-version': '2023-06-01',
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
+          model: 'claude-opus-4-20250514',
           max_tokens: 4000,
           system: systemPrompt,
           messages: conversationHistory,
