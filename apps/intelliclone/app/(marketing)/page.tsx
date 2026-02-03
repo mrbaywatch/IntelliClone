@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 type Lang = 'en' | 'no';
@@ -8,81 +8,85 @@ type Lang = 'en' | 'no';
 const translations = {
   en: {
     nav: {
-      features: 'Features',
+      features: 'Solutions',
       howItWorks: 'How It Works',
       getStarted: 'Get Started',
     },
     hero: {
-      badge: 'Now available in Norway',
-      title1: 'AI That Actually',
-      title2: 'Remembers You',
-      subtitle: 'Your personal AI assistant that learns your preferences, remembers your conversations, and grows smarter with every interaction. Built for Norway.',
-      cta: 'Schedule a Demo',
-      learnMore: 'Learn More →',
+      badge: 'AI Employees for Norwegian Businesses',
+      title1: 'Your Next Hire',
+      title2: 'Is AI',
+      subtitle: 'Personal AI assistants that actually work. They remember everything, never take sick days, and cost a fraction of a traditional hire.',
+      cta: 'Get Your AI Employee',
+      learnMore: 'See How It Works →',
     },
     features: {
-      title1: 'Intelligence That',
-      title2: 'Evolves',
-      subtitle: 'Unlike typical AI, IntelliClone builds a deep understanding of you over time.',
+      title1: 'AI That Works',
+      title2: 'Like an Employee',
+      subtitle: 'Not just a chatbot. A dedicated assistant that learns your business inside and out.',
       memory: {
-        title: 'Persistent Memory',
-        desc: 'Every conversation builds on the last. Your AI remembers your preferences, past discussions, and important details—forever.',
+        title: 'Remembers Everything',
+        desc: 'Every conversation, every preference, every decision. Your AI builds institutional knowledge that never leaves.',
       },
       personalization: {
-        title: 'Deep Personalization',
-        desc: 'Adapts to your communication style, understands your context, and provides responses tailored specifically to you.',
+        title: 'Learns Your Business',
+        desc: 'Understands your processes, your customers, your way of working. Gets better every single day.',
       },
       norway: {
-        title: 'Built for Norway',
-        desc: 'Native Norwegian language support, GDPR-compliant data handling, and infrastructure designed for the Norwegian market.',
+        title: 'Speaks Norwegian',
+        desc: 'Native Norwegian language. Understands dialects, culture, and local business context. GDPR compliant.',
       },
     },
     howItWorks: {
-      title: 'Simple to Start',
-      subtitle: 'Get your personal AI assistant up and running in minutes.',
-      step1: { label: 'Step 1', title: 'Connect', desc: 'Link your favorite apps and services. Calendar, email, notes—IntelliClone integrates seamlessly.' },
-      step2: { label: 'Step 2', title: 'Learn', desc: 'Just start chatting. Your AI learns your preferences, style, and needs with every conversation.' },
-      step3: { label: 'Step 3', title: 'Remember', desc: 'Your AI remembers everything important. Context from weeks ago becomes instant recall today.' },
+      title: 'Tailored to Your Business',
+      subtitle: 'Every business is unique. We build AI solutions that fit your specific needs.',
+      step1: { label: '01', title: 'We Understand Your Needs', desc: 'What challenges do you face? We map your processes and identify where AI creates the most value.' },
+      step2: { label: '02', title: 'Custom Solution', desc: 'We build and train your AI on your data, your processes, your way of working.' },
+      step3: { label: '03', title: 'Continuous Improvement', desc: 'Your AI gets smarter over time. We monitor, optimize, and ensure it delivers results.' },
+    },
+    useCases: {
+      title: 'One Platform, Many Roles',
+      subtitle: 'Deploy AI employees across your entire organization.',
+      roles: [
+        { title: 'Customer Support', desc: 'Answer questions 24/7, handle complaints, escalate when needed' },
+        { title: 'Sales Assistant', desc: 'Qualify leads, book meetings, follow up on proposals' },
+        { title: 'Research Analyst', desc: 'Monitor competitors, summarize reports, find opportunities' },
+        { title: 'Admin Assistant', desc: 'Schedule meetings, manage documents, handle routine tasks' },
+      ],
     },
     chat: {
       title1: 'Conversations That',
-      title2: 'Feel Natural',
-      subtitle: 'No more repeating yourself. IntelliClone picks up right where you left off, understanding context and nuance like a trusted colleague.',
+      title2: 'Get Results',
+      subtitle: 'Your AI remembers context from every interaction. No more repeating yourself. No more lost information.',
       checks: [
-        'References past conversations naturally',
-        'Understands your preferences and style',
-        'Proactively helpful without being pushy',
+        'Remembers every past conversation',
+        'Understands your business context',
+        'Takes action, not just answers',
       ],
-      msg1: "Good morning! I noticed your meeting with the Oslo team is in an hour. Want me to pull up the notes from last week's call?",
-      msg2: 'Yes please, and remind me what we decided about the Q2 budget',
-      msg3: "Of course! On January 15th you agreed to allocate 15% more for the expansion project. I've attached the summary.",
+      msg1: 'Good morning! The Q2 report you asked about is ready. Also, your meeting with Equinor is in 2 hours—want me to prep the talking points?',
+      msg2: 'Yes, and pull the latest numbers from the CRM',
+      msg3: 'Done. I\'ve attached the talking points and the CRM data shows 23% growth this quarter. Anything else before the meeting?',
     },
     security: {
-      badge: 'GDPR Compliant',
-      title: 'Your Data, Your Control',
-      subtitle: 'Built in Norway, for Norway. We take data privacy seriously with end-to-end encryption, local data processing, and full GDPR compliance.',
+      badge: 'Enterprise Ready',
+      title: 'Your Data Stays Yours',
+      subtitle: 'Norwegian infrastructure, GDPR compliant, enterprise-grade security. Your data never leaves Europe.',
       encrypted: 'End-to-end encrypted',
-      euData: 'EU data residency',
-      soc2: 'SOC 2 certified',
-    },
-    testimonials: {
-      title: 'Loved by Early Adopters',
-      t1: { quote: "Finally an AI that doesn't make me repeat myself every session. It's like having a colleague who actually pays attention.", name: 'Erik S.', role: 'Product Manager, Oslo' },
-      t2: { quote: 'The Norwegian language support is exceptional. It understands dialects and cultural context perfectly. Veldig imponert!', name: 'Maria L.', role: 'Startup Founder, Bergen' },
-      t3: { quote: 'I love that my data stays in Europe. As a privacy-conscious user, this was the deciding factor for me.', name: 'Thomas K.', role: 'Software Engineer, Trondheim' },
+      euData: 'Norwegian data centers',
+      soc2: 'Enterprise security',
     },
     cta: {
-      title1: 'Ready to Experience',
-      title2: 'AI That Remembers?',
-      subtitle: "Join thousands of Norwegians who've upgraded to a smarter, more personal AI assistant.",
-      button: 'Get Started',
-      demo: 'Schedule a Demo',
-      footnote: 'Get a personalized walkthrough of IntelliClone',
+      title1: 'Ready to Hire',
+      title2: 'Your First AI Employee?',
+      subtitle: 'Let\'s discuss how AI can transform your business. Book a free consultation.',
+      button: 'Book Consultation',
+      demo: 'Contact Us',
+      footnote: 'Free consultation. No obligations.',
     },
     footer: {
-      tagline: 'AI that remembers you.\nBuilt for Norway.',
+      tagline: 'AI employees for\nNorwegian businesses.',
       product: 'Product',
-      features: 'Features',
+      features: 'Solutions',
       integrations: 'Integrations',
       company: 'Company',
       about: 'About',
@@ -92,87 +96,91 @@ const translations = {
       privacy: 'Privacy Policy',
       terms: 'Terms of Service',
       cookie: 'Cookie Policy',
-      copyright: '© 2025 IntelliClone. Made with ❤️ in Norway.',
-      availableIn: 'Available in:',
+      copyright: '© 2025 IntelliClone. Made in Norway.',
+      availableIn: 'Language:',
     },
   },
   no: {
     nav: {
-      features: 'Funksjoner',
-      howItWorks: 'Hvordan det fungerer',
+      features: 'Løsninger',
+      howItWorks: 'Slik fungerer det',
       getStarted: 'Kom i gang',
     },
     hero: {
-      badge: 'Nå tilgjengelig i Norge',
-      title1: 'AI som faktisk',
-      title2: 'husker deg',
-      subtitle: 'Din personlige AI-assistent som lærer dine preferanser, husker samtalene dine og blir smartere for hver interaksjon. Bygget for Norge.',
-      cta: 'Book en demo',
-      learnMore: 'Les mer →',
+      badge: 'AI-ansatte for norske bedrifter',
+      title1: 'Din neste ansettelse',
+      title2: 'er AI',
+      subtitle: 'Personlige AI-assistenter som faktisk jobber. De husker alt, er aldri syke, og koster en brøkdel av en vanlig ansatt.',
+      cta: 'Få din AI-ansatt',
+      learnMore: 'Se hvordan det fungerer →',
     },
     features: {
-      title1: 'Intelligens som',
-      title2: 'utvikler seg',
-      subtitle: 'I motsetning til vanlig AI, bygger IntelliClone en dyp forståelse av deg over tid.',
+      title1: 'AI som jobber',
+      title2: 'som en ansatt',
+      subtitle: 'Ikke bare en chatbot. En dedikert assistent som lærer bedriften din ut og inn.',
       memory: {
-        title: 'Varig hukommelse',
-        desc: 'Hver samtale bygger på den forrige. Din AI husker dine preferanser, tidligere diskusjoner og viktige detaljer—for alltid.',
+        title: 'Husker alt',
+        desc: 'Hver samtale, hver preferanse, hver beslutning. Din AI bygger institusjonell kunnskap som aldri forsvinner.',
       },
       personalization: {
-        title: 'Dyp personalisering',
-        desc: 'Tilpasser seg din kommunikasjonsstil, forstår din kontekst og gir svar skreddersydd spesifikt for deg.',
+        title: 'Lærer din bedrift',
+        desc: 'Forstår prosessene dine, kundene dine, måten du jobber på. Blir bedre hver eneste dag.',
       },
       norway: {
-        title: 'Bygget for Norge',
-        desc: 'Innebygd norsk språkstøtte, GDPR-kompatibel datahåndtering og infrastruktur designet for det norske markedet.',
+        title: 'Snakker norsk',
+        desc: 'Innfødt norsk språk. Forstår dialekter, kultur og lokal forretningskontekst. GDPR-kompatibel.',
       },
     },
     howItWorks: {
-      title: 'Enkelt å starte',
-      subtitle: 'Få din personlige AI-assistent i gang på få minutter.',
-      step1: { label: 'Steg 1', title: 'Koble til', desc: 'Koble til dine favorittapper og tjenester. Kalender, e-post, notater—IntelliClone integreres sømløst.' },
-      step2: { label: 'Steg 2', title: 'Lær', desc: 'Bare start å chatte. Din AI lærer dine preferanser, stil og behov med hver samtale.' },
-      step3: { label: 'Steg 3', title: 'Husk', desc: 'Din AI husker alt som er viktig. Kontekst fra uker siden blir umiddelbar gjenkalling i dag.' },
+      title: 'Skreddersydd for din bedrift',
+      subtitle: 'Hver bedrift er unik. Vi bygger AI-løsninger som passer dine spesifikke behov.',
+      step1: { label: '01', title: 'Vi forstår dine behov', desc: 'Hvilke utfordringer har du? Vi kartlegger prosessene dine og finner hvor AI skaper mest verdi.' },
+      step2: { label: '02', title: 'Tilpasset løsning', desc: 'Vi bygger og trener din AI på dine data, dine prosesser, din måte å jobbe på.' },
+      step3: { label: '03', title: 'Kontinuerlig forbedring', desc: 'Din AI blir smartere over tid. Vi overvåker, optimaliserer og sikrer at den leverer resultater.' },
+    },
+    useCases: {
+      title: 'Én plattform, mange roller',
+      subtitle: 'Deploy AI-ansatte på tvers av hele organisasjonen.',
+      roles: [
+        { title: 'Kundeservice', desc: 'Svar på spørsmål 24/7, håndter klager, eskaler ved behov' },
+        { title: 'Salgsassistent', desc: 'Kvalifiser leads, book møter, følg opp tilbud' },
+        { title: 'Research-analytiker', desc: 'Overvåk konkurrenter, oppsummer rapporter, finn muligheter' },
+        { title: 'Admin-assistent', desc: 'Planlegg møter, håndter dokumenter, utfør rutineoppgaver' },
+      ],
     },
     chat: {
       title1: 'Samtaler som',
-      title2: 'føles naturlige',
-      subtitle: 'Ikke mer gjentagelse. IntelliClone fortsetter akkurat der du slapp, og forstår kontekst og nyanser som en pålitelig kollega.',
+      title2: 'gir resultater',
+      subtitle: 'Din AI husker kontekst fra hver interaksjon. Aldri mer gjentakelser. Aldri mer tapt informasjon.',
       checks: [
-        'Refererer naturlig til tidligere samtaler',
-        'Forstår dine preferanser og stil',
-        'Proaktivt hjelpsom uten å være påtrengende',
+        'Husker alle tidligere samtaler',
+        'Forstår forretningskonteksten din',
+        'Tar action, ikke bare svarer',
       ],
-      msg1: 'God morgen! Jeg la merke til at møtet ditt med Oslo-teamet er om en time. Vil du at jeg henter notatene fra forrige ukes samtale?',
-      msg2: 'Ja takk, og minn meg på hva vi bestemte om Q2-budsjettet',
-      msg3: 'Selvfølgelig! Den 15. januar ble dere enige om å allokere 15% mer til utvidelsesprosjektet. Jeg har lagt ved sammendraget.',
+      msg1: 'God morgen! Q2-rapporten du spurte om er klar. Møtet med Equinor er om 2 timer—skal jeg forberede samtalepunktene?',
+      msg2: 'Ja, og hent de siste tallene fra CRM-et',
+      msg3: 'Gjort. Jeg har lagt ved samtalepunktene og CRM-dataen viser 23% vekst dette kvartalet. Noe annet før møtet?',
     },
     security: {
-      badge: 'GDPR-kompatibel',
-      title: 'Dine data, din kontroll',
-      subtitle: 'Bygget i Norge, for Norge. Vi tar personvern på alvor med ende-til-ende-kryptering, lokal databehandling og full GDPR-samsvar.',
+      badge: 'Enterprise Ready',
+      title: 'Dine data forblir dine',
+      subtitle: 'Norsk infrastruktur, GDPR-kompatibel, enterprise-sikkerhet. Dataene dine forlater aldri Europa.',
       encrypted: 'Ende-til-ende-kryptert',
-      euData: 'EU-datalagring',
-      soc2: 'SOC 2-sertifisert',
-    },
-    testimonials: {
-      title: 'Elsket av tidlige brukere',
-      t1: { quote: 'Endelig en AI som ikke får meg til å gjenta meg selv hver gang. Det er som å ha en kollega som faktisk følger med.', name: 'Erik S.', role: 'Product Manager, Oslo' },
-      t2: { quote: 'Norsk språkstøtte er eksepsjonell. Den forstår dialekter og kulturell kontekst perfekt. Veldig imponert!', name: 'Maria L.', role: 'Startup Founder, Bergen' },
-      t3: { quote: 'Jeg elsker at dataene mine forblir i Europa. Som en personvernbevisst bruker var dette avgjørende for meg.', name: 'Thomas K.', role: 'Software Engineer, Trondheim' },
+      euData: 'Norske datasentre',
+      soc2: 'Enterprise-sikkerhet',
     },
     cta: {
-      title1: 'Klar til å oppleve',
-      title2: 'AI som husker?',
-      subtitle: 'Bli med tusenvis av nordmenn som har oppgradert til en smartere, mer personlig AI-assistent.',
-      button: 'Kom i gang',
-      demo: 'Book en demo',
-      footnote: 'Få en personlig gjennomgang av IntelliClone',
+      title1: 'Klar til å ansette',
+      title2: 'din første AI-medarbeider?',
+      subtitle: 'La oss diskutere hvordan AI kan transformere din bedrift. Book en gratis samtale.',
+      button: 'Book samtale',
+      demo: 'Kontakt oss',
+      footnote: 'Gratis samtale. Ingen forpliktelser.',
     },
     footer: {
-      tagline: 'AI som husker deg.\nBygget for Norge.',
+      tagline: 'AI-ansatte for\nnorske bedrifter.',
       product: 'Produkt',
-      features: 'Funksjoner',
+      features: 'Løsninger',
       integrations: 'Integrasjoner',
       company: 'Selskap',
       about: 'Om oss',
@@ -182,13 +190,12 @@ const translations = {
       privacy: 'Personvern',
       terms: 'Vilkår',
       cookie: 'Informasjonskapsler',
-      copyright: '© 2025 IntelliClone. Laget med ❤️ i Norge.',
-      availableIn: 'Tilgjengelig på:',
+      copyright: '© 2025 IntelliClone. Laget i Norge.',
+      availableIn: 'Språk:',
     },
   },
 };
 
-// Star Icon SVG for testimonials
 const StarIcon = () => (
   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -196,11 +203,10 @@ const StarIcon = () => (
 );
 
 export default function LandingPage() {
-  const [lang, setLang] = useState<Lang>('en');
+  const [lang, setLang] = useState<Lang>('no');
   const t = translations[lang];
 
   useEffect(() => {
-    // Load saved language preference
     const saved = localStorage.getItem('preferred-lang') as Lang | null;
     if (saved && (saved === 'en' || saved === 'no')) {
       setLang(saved);
@@ -211,7 +217,6 @@ export default function LandingPage() {
     localStorage.setItem('preferred-lang', lang);
   }, [lang]);
 
-  // Intersection Observer for fade-in animations
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -246,7 +251,6 @@ export default function LandingPage() {
           50% { transform: translateY(-12px); }
         }
         .float { animation: float 6s ease-in-out infinite; }
-        .float-delayed { animation: float 6s ease-in-out infinite; animation-delay: -3s; }
         @keyframes subtle-pulse {
           0%, 100% { box-shadow: 0 4px 20px rgba(212, 168, 75, 0.2); }
           50% { box-shadow: 0 4px 30px rgba(212, 168, 75, 0.35); }
@@ -270,9 +274,6 @@ export default function LandingPage() {
         .hover\\:bg-gold-dark:hover { background-color: #B8923F; }
         .hover\\:bg-gold-light:hover { background-color: #E8C97A; }
         .hover\\:text-gold:hover { color: #D4A84B; }
-        .ring-gold\\/30 { --tw-ring-color: rgba(212, 168, 75, 0.3); }
-        .from-gold { --tw-gradient-from: #D4A84B; }
-        .to-gold-dark { --tw-gradient-to: #B8923F; }
       `}</style>
 
       {/* Navigation */}
@@ -312,17 +313,17 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center pt-20 pb-16 px-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-white via-gray-50/50 to-amber-50/30"></div>
-        <div className="max-w-6xl mx-auto relative z-10">
-          <div className="text-center mb-16 fade-in">
+        <div className="max-w-5xl mx-auto relative z-10">
+          <div className="text-center fade-in">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-full text-sm text-gray-600 mb-8">
               <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
               {t.hero.badge}
             </div>
-            <h1 className="text-5xl md:text-7xl font-semibold tracking-tight leading-tight mb-6">
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-tight mb-6">
               {t.hero.title1}<br />
               <span className="text-gradient">{t.hero.title2}</span>
             </h1>
-            <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
+            <p className="text-xl md:text-2xl text-gray-500 max-w-3xl mx-auto mb-10 leading-relaxed">
               {t.hero.subtitle}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -337,46 +338,6 @@ export default function LandingPage() {
               </a>
             </div>
           </div>
-
-          {/* Hero Device Mockup */}
-          <div className="relative flex justify-center items-center mt-20">
-            <div className="float">
-              <svg className="w-full max-w-3xl soft-shadow rounded-2xl" viewBox="0 0 800 500" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="50" y="30" width="700" height="420" rx="20" fill="#f5f5f7"/>
-                <rect x="70" y="50" width="660" height="370" rx="4" fill="#1a1a1a"/>
-                <rect x="80" y="60" width="640" height="350" fill="white"/>
-                <rect x="100" y="80" width="200" height="310" fill="#f9fafb" rx="8"/>
-                <rect x="110" y="100" width="180" height="40" fill="#e5e7eb" rx="20"/>
-                <rect x="110" y="150" width="150" height="30" fill="#e5e7eb" rx="15"/>
-                <rect x="110" y="190" width="170" height="30" fill="#e5e7eb" rx="15"/>
-                <rect x="110" y="230" width="140" height="30" fill="#e5e7eb" rx="15"/>
-                <rect x="320" y="80" width="380" height="310" fill="#ffffff"/>
-                <rect x="480" y="100" width="200" height="50" rx="20" fill="#D4A84B"/>
-                <text x="520" y="130" fill="white" fontSize="12" fontFamily="system-ui">What&apos;s on my calendar?</text>
-                <rect x="340" y="170" width="280" height="80" rx="20" fill="#f3f4f6"/>
-                <text x="360" y="200" fill="#374151" fontSize="12" fontFamily="system-ui">You have 3 meetings today:</text>
-                <text x="360" y="220" fill="#6b7280" fontSize="11" fontFamily="system-ui">• 10:00 Team standup</text>
-                <text x="360" y="238" fill="#6b7280" fontSize="11" fontFamily="system-ui">• 14:00 Client call with Oslo team</text>
-                <rect x="340" y="340" width="340" height="40" rx="20" fill="#f9fafb" stroke="#e5e7eb"/>
-                <rect x="50" y="450" width="700" height="20" fill="#e5e7eb"/>
-                <ellipse cx="400" cy="460" rx="50" ry="8" fill="#d1d5db"/>
-              </svg>
-            </div>
-            <div className="absolute -right-4 md:right-12 top-[60%] -translate-y-1/2 float-delayed hidden md:block">
-              <svg className="w-48 soft-shadow rounded-3xl" viewBox="0 0 180 360" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="180" height="360" rx="30" fill="#1a1a1a"/>
-                <rect x="8" y="8" width="164" height="344" rx="24" fill="white"/>
-                <rect x="55" y="12" width="70" height="25" rx="12" fill="#1a1a1a"/>
-                <rect x="20" y="60" width="100" height="35" rx="17" fill="#f3f4f6"/>
-                <rect x="60" y="105" width="100" height="35" rx="17" fill="#D4A84B"/>
-                <rect x="20" y="150" width="120" height="50" rx="20" fill="#f3f4f6"/>
-                <rect x="40" y="210" width="120" height="35" rx="17" fill="#D4A84B"/>
-                <rect x="20" y="255" width="100" height="35" rx="17" fill="#f3f4f6"/>
-                <rect x="15" y="310" width="150" height="35" rx="17" fill="#f9fafb" stroke="#e5e7eb"/>
-                <rect x="65" y="340" width="50" height="5" rx="2" fill="#d1d5db"/>
-              </svg>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -384,7 +345,7 @@ export default function LandingPage() {
       <section id="features" className="py-32 px-6 bg-gray-50/50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20 fade-in">
-            <h2 className="text-4xl md:text-5xl font-semibold tracking-tight mb-6">
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
               {t.features.title1} <span className="text-gradient">{t.features.title2}</span>
             </h2>
             <p className="text-xl text-gray-500 max-w-2xl mx-auto">
@@ -393,41 +354,31 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Feature 1: Memory */}
             <div className="fade-in bg-white rounded-3xl p-10 soft-shadow hover-lift">
-              <div className="w-20 h-20 mb-8 rounded-2xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center">
-                <svg className="w-10 h-10 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <div className="w-16 h-16 mb-8 rounded-2xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center">
+                <svg className="w-8 h-8 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <circle cx="12" cy="12" r="3"/>
-                  <circle cx="5" cy="8" r="2"/>
-                  <circle cx="19" cy="8" r="2"/>
-                  <circle cx="5" cy="16" r="2"/>
-                  <circle cx="19" cy="16" r="2"/>
-                  <path d="M7 8h2M15 8h2M7 16h2M15 16h2M12 9V6M12 18v-3"/>
+                  <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>
                 </svg>
               </div>
               <h3 className="text-2xl font-semibold mb-4">{t.features.memory.title}</h3>
               <p className="text-gray-500 leading-relaxed">{t.features.memory.desc}</p>
             </div>
 
-            {/* Feature 2: Personalization */}
             <div className="fade-in bg-white rounded-3xl p-10 soft-shadow hover-lift" style={{ transitionDelay: '0.1s' }}>
-              <div className="w-20 h-20 mb-8 rounded-2xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center">
-                <svg className="w-10 h-10 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M12 3c-4 0-7 3-7 7 0 5 7 11 7 11s7-6 7-11c0-4-3-7-7-7z"/>
-                  <circle cx="12" cy="10" r="2"/>
-                  <path d="M8 21h8"/>
+              <div className="w-16 h-16 mb-8 rounded-2xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center">
+                <svg className="w-8 h-8 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                 </svg>
               </div>
               <h3 className="text-2xl font-semibold mb-4">{t.features.personalization.title}</h3>
               <p className="text-gray-500 leading-relaxed">{t.features.personalization.desc}</p>
             </div>
 
-            {/* Feature 3: Norway */}
             <div className="fade-in bg-white rounded-3xl p-10 soft-shadow hover-lift" style={{ transitionDelay: '0.2s' }}>
-              <div className="w-20 h-20 mb-8 rounded-2xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center">
-                <svg className="w-10 h-10 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <rect x="3" y="6" width="18" height="12" rx="2"/>
-                  <path d="M8 6v12M3 12h18" strokeWidth="2"/>
+              <div className="w-16 h-16 mb-8 rounded-2xl bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center">
+                <svg className="w-8 h-8 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"/>
                 </svg>
               </div>
               <h3 className="text-2xl font-semibold mb-4">{t.features.norway.title}</h3>
@@ -437,65 +388,51 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Use Cases */}
+      <section className="py-32 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16 fade-in">
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">{t.useCases.title}</h2>
+            <p className="text-xl text-gray-500 max-w-2xl mx-auto">{t.useCases.subtitle}</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {t.useCases.roles.map((role, i) => (
+              <div key={i} className="fade-in p-6 rounded-2xl border border-gray-100 hover:border-gold/30 hover:shadow-lg transition-all" style={{ transitionDelay: `${i * 0.1}s` }}>
+                <h3 className="font-semibold text-lg mb-2">{role.title}</h3>
+                <p className="text-gray-500 text-sm">{role.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* How It Works Section */}
-      <section id="how-it-works" className="py-32 px-6">
+      <section id="how-it-works" className="py-32 px-6 bg-gray-50/50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20 fade-in">
-            <h2 className="text-4xl md:text-5xl font-semibold tracking-tight mb-6">{t.howItWorks.title}</h2>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">{t.howItWorks.title}</h2>
             <p className="text-xl text-gray-500 max-w-2xl mx-auto">{t.howItWorks.subtitle}</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-12 relative">
-            <div className="hidden md:block absolute top-24 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-gray-200 via-[#D4A84B]/30 to-gray-200"></div>
-
-            {/* Step 1 */}
-            <div className="fade-in text-center">
-              <div className="w-20 h-20 mx-auto mb-8 rounded-full bg-white soft-shadow flex items-center justify-center relative z-10">
-                <svg className="w-10 h-10 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M12 5v14M5 12h14"/>
-                  <circle cx="12" cy="12" r="9"/>
-                </svg>
+          <div className="grid md:grid-cols-3 gap-12">
+            {[t.howItWorks.step1, t.howItWorks.step2, t.howItWorks.step3].map((step, i) => (
+              <div key={i} className="fade-in text-center" style={{ transitionDelay: `${i * 0.1}s` }}>
+                <div className="text-6xl font-bold text-gold/20 mb-4">{step.label}</div>
+                <h3 className="text-2xl font-semibold mb-4">{step.title}</h3>
+                <p className="text-gray-500">{step.desc}</p>
               </div>
-              <div className="text-sm text-gold font-medium mb-2">{t.howItWorks.step1.label}</div>
-              <h3 className="text-2xl font-semibold mb-4">{t.howItWorks.step1.title}</h3>
-              <p className="text-gray-500">{t.howItWorks.step1.desc}</p>
-            </div>
-
-            {/* Step 2 */}
-            <div className="fade-in text-center" style={{ transitionDelay: '0.1s' }}>
-              <div className="w-20 h-20 mx-auto mb-8 rounded-full bg-white soft-shadow flex items-center justify-center relative z-10">
-                <svg className="w-10 h-10 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M4 19l4-4m0 0l4 4m-4-4V5"/>
-                  <path d="M20 5l-4 4m0 0l-4-4m4 4v10"/>
-                </svg>
-              </div>
-              <div className="text-sm text-gold font-medium mb-2">{t.howItWorks.step2.label}</div>
-              <h3 className="text-2xl font-semibold mb-4">{t.howItWorks.step2.title}</h3>
-              <p className="text-gray-500">{t.howItWorks.step2.desc}</p>
-            </div>
-
-            {/* Step 3 */}
-            <div className="fade-in text-center" style={{ transitionDelay: '0.2s' }}>
-              <div className="w-20 h-20 mx-auto mb-8 rounded-full bg-white soft-shadow flex items-center justify-center relative z-10">
-                <svg className="w-10 h-10 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M5 12l5 5L20 7"/>
-                  <circle cx="12" cy="12" r="9" strokeDasharray="4 2"/>
-                </svg>
-              </div>
-              <div className="text-sm text-gold font-medium mb-2">{t.howItWorks.step3.label}</div>
-              <h3 className="text-2xl font-semibold mb-4">{t.howItWorks.step3.title}</h3>
-              <p className="text-gray-500">{t.howItWorks.step3.desc}</p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Chat Preview Section */}
-      <section className="py-32 px-6 bg-gradient-to-b from-gray-50/50 to-white">
+      <section className="py-32 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="fade-in">
-              <h2 className="text-4xl md:text-5xl font-semibold tracking-tight mb-6">
+              <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
                 {t.chat.title1}<br />
                 <span className="text-gradient">{t.chat.title2}</span>
               </h2>
@@ -503,7 +440,7 @@ export default function LandingPage() {
               <ul className="space-y-4">
                 {t.chat.checks.map((check, i) => (
                   <li key={i} className="flex items-center gap-3 text-gray-600">
-                    <svg className="w-6 h-6 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <svg className="w-6 h-6 text-gold flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                       <path d="M5 13l4 4L19 7"/>
                     </svg>
                     {check}
@@ -512,20 +449,19 @@ export default function LandingPage() {
               </ul>
             </div>
 
-            {/* Chat Preview Mockup */}
             <div className="fade-in float">
               <div className="bg-white rounded-3xl soft-shadow p-8 max-w-md mx-auto">
                 <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-100">
-                  <img src="/images/erik-avatar.png" alt="Erik" className="w-10 h-10 rounded-full object-cover" />
+                  <div className="w-10 h-10 rounded-full bg-gold flex items-center justify-center text-white font-semibold">AI</div>
                   <div>
-                    <div className="font-semibold text-gold">Erik</div>
-                    <div className="text-xs text-green-500">{lang === 'en' ? 'Online' : 'Pålogget'}</div>
+                    <div className="font-semibold">AI Assistant</div>
+                    <div className="text-xs text-green-500">{lang === 'en' ? 'Online' : 'Tilgjengelig'}</div>
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <div className="flex gap-3">
-                    <img src="/images/erik-avatar.png" alt="Erik" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                    <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">AI</div>
                     <div className="bg-gray-100 rounded-2xl rounded-tl-md px-4 py-3 max-w-xs">
                       <p className="text-sm text-gray-700">{t.chat.msg1}</p>
                     </div>
@@ -536,24 +472,11 @@ export default function LandingPage() {
                     </div>
                   </div>
                   <div className="flex gap-3">
-                    <img src="/images/erik-avatar.png" alt="Erik" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                    <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">AI</div>
                     <div className="bg-gray-100 rounded-2xl rounded-tl-md px-4 py-3 max-w-xs">
                       <p className="text-sm text-gray-700">{t.chat.msg3}</p>
                     </div>
                   </div>
-                </div>
-
-                <div className="mt-8 flex items-center gap-3">
-                  <input
-                    type="text"
-                    placeholder={lang === 'en' ? 'Type a message...' : 'Skriv en melding...'}
-                    className="flex-1 bg-gray-50 rounded-full px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A84B]/30"
-                  />
-                  <button className="w-10 h-10 bg-gold rounded-full flex items-center justify-center text-white">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                    </svg>
-                  </button>
                 </div>
               </div>
             </div>
@@ -570,7 +493,7 @@ export default function LandingPage() {
             </svg>
             {t.security.badge}
           </div>
-          <h2 className="text-4xl md:text-5xl font-semibold tracking-tight mb-6">{t.security.title}</h2>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">{t.security.title}</h2>
           <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-12 leading-relaxed">{t.security.subtitle}</p>
           <div className="flex flex-wrap justify-center gap-8 text-gray-400">
             <div className="flex items-center gap-2">
@@ -595,37 +518,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-32 px-6 bg-gray-50/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16 fade-in">
-            <h2 className="text-4xl md:text-5xl font-semibold tracking-tight mb-6">{t.testimonials.title}</h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[t.testimonials.t1, t.testimonials.t2, t.testimonials.t3].map((testimonial, i) => (
-              <div key={i} className="fade-in bg-white rounded-3xl p-8 soft-shadow" style={{ transitionDelay: `${i * 0.1}s` }}>
-                <div className="flex gap-1 mb-4 text-gold">
-                  {[...Array(5)].map((_, j) => <StarIcon key={j} />)}
-                </div>
-                <p className="text-gray-600 mb-6 leading-relaxed">&quot;{testimonial.quote}&quot;</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gray-200"></div>
-                  <div>
-                    <div className="font-medium text-sm">{testimonial.name}</div>
-                    <div className="text-gray-400 text-xs">{testimonial.role}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section */}
-      <section id="cta" className="py-32 px-6 bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+      <section className="py-32 px-6 bg-gradient-to-br from-gray-900 to-gray-800 text-white">
         <div className="max-w-4xl mx-auto text-center fade-in">
-          <h2 className="text-4xl md:text-5xl font-semibold tracking-tight mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
             {t.cta.title1}<br />
             <span className="text-gold">{t.cta.title2}</span>
           </h2>
@@ -667,7 +563,6 @@ export default function LandingPage() {
               <h4 className="font-medium mb-4">{t.footer.company}</h4>
               <ul className="space-y-2 text-sm text-gray-500">
                 <li><a href="#" className="hover:text-gold transition-colors">{t.footer.about}</a></li>
-                <li><a href="#" className="hover:text-gold transition-colors">Blog</a></li>
                 <li><a href="#" className="hover:text-gold transition-colors">{t.footer.careers}</a></li>
                 <li><a href="#" className="hover:text-gold transition-colors">{t.footer.contact}</a></li>
               </ul>
@@ -678,7 +573,6 @@ export default function LandingPage() {
                 <li><a href="#" className="hover:text-gold transition-colors">{t.footer.privacy}</a></li>
                 <li><a href="#" className="hover:text-gold transition-colors">{t.footer.terms}</a></li>
                 <li><a href="#" className="hover:text-gold transition-colors">GDPR</a></li>
-                <li><a href="#" className="hover:text-gold transition-colors">{t.footer.cookie}</a></li>
               </ul>
             </div>
           </div>
