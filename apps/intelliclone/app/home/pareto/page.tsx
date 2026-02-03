@@ -603,12 +603,26 @@ export default function ParetoPage() {
                     <Upload className="w-5 h-5" />
                   </button>
                   
-                  <input
-                    type="text"
+                  <textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="Skriv en melding..."
-                    className={`flex-1 px-4 py-3 ${theme.inputField} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        if (input.trim() || uploadedFiles.length > 0) {
+                          handleSubmit(e as any);
+                        }
+                      }
+                    }}
+                    placeholder="Skriv en melding... (Shift+Enter for nytt avsnitt)"
+                    rows={1}
+                    className={`flex-1 px-4 py-3 ${theme.inputField} rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none overflow-hidden`}
+                    style={{ minHeight: '48px', maxHeight: '200px' }}
+                    onInput={(e) => {
+                      const target = e.target as HTMLTextAreaElement;
+                      target.style.height = '48px';
+                      target.style.height = Math.min(target.scrollHeight, 200) + 'px';
+                    }}
                   />
                   
                   <button

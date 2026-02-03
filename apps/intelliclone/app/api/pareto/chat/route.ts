@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { buildPetterSystemPrompt } from '~/lib/pareto/knowledge-loader';
+import { extractText } from 'unpdf';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -24,19 +25,24 @@ export async function POST(request: NextRequest) {
           let text = '';
           
           try {
+            const buffer = Buffer.from(await file.arrayBuffer());
+            
             if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-              // Parse PDF using dynamic import
-              const pdfParse = (await import('pdf-parse')).default;
-              const buffer = Buffer.from(await file.arrayBuffer());
-              const pdfData = await pdfParse(buffer);
-              text = pdfData.text;
+              // Parse PDF using unpdf (Vercel-compatible)
+              try {
+                const { text: pdfText } = await extractText(buffer);
+                text = pdfText;
+              } catch (pdfError) {
+                console.error('unpdf failed:', pdfError);
+                text = `[PDF oppdaget: ${file.name} (${Math.round(buffer.length/1024)}KB) - Kunne ikke trekke ut tekst automatisk. Vennligst beskriv innholdet eller kopier relevant tekst manuelt.]`;
+              }
             } else {
               // Plain text files
               text = await file.text();
             }
           } catch (error) {
             console.error(`Error parsing file ${file.name}:`, error);
-            text = `[Kunne ikke lese innholdet i ${file.name}]`;
+            text = `[Feil ved lesing av ${file.name}: ${error instanceof Error ? error.message : 'ukjent feil'}]`;
           }
           
           const truncated = text.slice(0, 15000);
