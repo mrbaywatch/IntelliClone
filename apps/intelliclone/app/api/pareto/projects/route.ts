@@ -56,14 +56,15 @@ export async function POST(request: NextRequest) {
       project_id: project.id,
       user_id: userId,
       role: 'assistant',
-      content: `Klar for **${name}**. 📋
+      content: `Klar for ${name}.
 
-Last opp dokumentene — jeg starter analysen med én gang:
-• Fornyelsestilbud / forsikringsbevis
-• E-postkorrespondanse (avtaleendringer)
-• Gjeldende avtale (for sammenligning)
+Last opp dokumentene du vil ha kontrollert:
 
-Jeg sjekker alt: summer, premier, rater, vilkår, egenandeler.`
+- Fornyelsestilbud eller forsikringsbevis
+- E-postkorrespondanse med avtaleendringer
+- Gjeldende avtale for sammenligning
+
+Jeg starter analysen så snart dokumentene er lastet opp.`
     });
 
     return NextResponse.json({ project });
