@@ -452,12 +452,12 @@ export default function ParetoPage() {
       {/* Sidebar */}
       <div className={`${sidebarOpen ? 'w-72' : 'w-0'} transition-all duration-300 ease-out ${theme.sidebar} border-r ${theme.border} flex flex-col overflow-hidden`}>
         {/* Sidebar Header - Pareto Logo */}
-        <div className={`px-5 py-6 border-b ${theme.borderSubtle}`}>
+        <div className={`px-4 py-4 border-b ${theme.borderSubtle}`}>
           <Image
             src="/pareto-logo.png"
             alt="Pareto"
-            width={110}
-            height={32}
+            width={90}
+            height={26}
             className={darkMode ? 'invert brightness-200' : ''}
           />
         </div>
