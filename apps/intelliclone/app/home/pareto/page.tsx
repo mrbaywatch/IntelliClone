@@ -583,7 +583,7 @@ export default function ParetoPage() {
             </div>
           ) : (
             <div className="flex-1">
-              <h2 className={`font-semibold text-[15px] ${theme.text}`}>Pareto-Petter</h2>
+              <h2 className={`font-semibold text-[15px] ${theme.text}`}>Dokumentkontroll</h2>
               <p className={`text-[11px] ${theme.textMuted}`}>Velg eller opprett et prosjekt</p>
             </div>
           )}
@@ -812,18 +812,12 @@ export default function ParetoPage() {
           /* Empty State */
           <div className={`flex-1 flex items-center justify-center ${theme.chat}`}>
             <div className="text-center max-w-md px-6">
-              <div className="mx-auto mb-8">
-                <Image 
-                  src="/pareto-logo.png" 
-                  alt="Pareto" 
-                  width={180} 
-                  height={52} 
-                  className={darkMode ? 'invert brightness-200' : ''}
-                />
+              <div className="mx-auto mb-6 w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center">
+                <FolderOpen className="w-8 h-8 text-blue-500" />
               </div>
-              <h3 className={`font-semibold text-xl ${theme.text} mb-2`}>Dokumentkontroll</h3>
+              <h3 className={`font-semibold text-xl ${theme.text} mb-2`}>Kom i gang</h3>
               <p className={`text-[14px] ${theme.textMuted} mb-6 leading-relaxed`}>
-                Kvalitetssikring av forsikringsavtaler. Opprett et prosjekt og last opp dokumenter for å starte analysen.
+                Opprett et prosjekt og last opp forsikringsdokumenter for kvalitetskontroll.
               </p>
               <button
                 onClick={() => { setSidebarOpen(true); setShowNewProject(true); }}

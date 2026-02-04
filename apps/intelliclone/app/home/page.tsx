@@ -73,20 +73,22 @@ export default function ChatDashboard() {
     sessionId: null,
   });
   const [userId, setUserId] = useState<string | null>(null);
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false); // Disabled - no onboarding
   const { language } = useLanguage();
   const supabase = useSupabase();
   
-  // Get current user on mount and check onboarding status
+  // Get current user on mount and check email domain routing
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUserId(user.id);
-        // Check if onboarding is complete
-        const onboardingComplete = localStorage.getItem(`onboarding_complete_${user.id}`);
-        if (!onboardingComplete) {
-          setShowOnboarding(true);
+        
+        // Email domain routing - redirect @pareto.no users to Pareto dashboard
+        const emailDomain = user.email?.split('@')[1]?.toLowerCase();
+        if (emailDomain === 'pareto.no') {
+          window.location.href = '/home/pareto';
+          return;
         }
       }
     };
