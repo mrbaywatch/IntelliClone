@@ -195,6 +195,14 @@ async function getPatterns() {
             new URL(pathsConfig.auth.verifyMfa, origin).href,
           );
         }
+
+        // Subdomain routing: pareto.intelliclone.no → /home/pareto
+        const hostname = req.headers.get('host') || '';
+        const subdomain = hostname.split('.')[0]?.toLowerCase();
+        
+        if (subdomain === 'pareto' && req.nextUrl.pathname === '/home') {
+          return NextResponse.rewrite(new URL('/home/pareto', origin));
+        }
       },
     },
   ];
